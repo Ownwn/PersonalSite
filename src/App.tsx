@@ -28,8 +28,30 @@ function App() {
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
+        <HelloBox />
     </>
+
+
   )
 }
 
 export default App
+
+function HelloBox() {
+    const [hello, setHello] = useState("");
+
+    return (
+        <>
+            <button onClick={async () => setHello(await getResponse())}>
+                response is {hello}
+            </button>
+
+        </>
+    )
+
+}
+
+async function getResponse() {
+    let response = await fetch("helloworld")
+    return await response.text()
+}
