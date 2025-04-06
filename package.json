@@ -11,12 +11,15 @@
         "deploy": "npm run build && wrangler pages deploy ./dist"
     },
     "dependencies": {
+        "js-cookie": "^3.0.5",
         "react": "^19.0.0",
-        "react-dom": "^19.0.0"
+        "react-dom": "^19.0.0",
+        "react-router-dom": "^7.5.0"
     },
     "devDependencies": {
         "@cloudflare/workers-types": "^4.20250405.0",
         "@eslint/js": "^9.21.0",
+        "@types/js-cookie": "^3.0.6",
         "@types/react": "^19.0.10",
         "@types/react-dom": "^19.0.4",
         "@vitejs/plugin-react": "^4.3.4",
