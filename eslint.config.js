@@ -25,6 +25,7 @@ export default tseslint.config(
             ],
             "no-const-assign": "warn",
             "prefer-const": "warn",
+            "no-unused-vars": "warn",
         },
     },
 )
