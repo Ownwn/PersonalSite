@@ -1,7 +1,7 @@
 // @ts-ignore
 import Cookies from "js-cookie";
 
-export function AuthError() {
+export function AuthPage() {
 
     // @ts-ignore
     async function sendPassword(formData: any) {
@@ -11,12 +11,15 @@ export function AuthError() {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({"password": "pass"})
+            body: JSON.stringify(Object.fromEntries(formData))
         })
 
         const json = await res.json()
         const cookie = json["cookie"]
-        Cookies.set("auth_cookie", cookie)
+        if (cookie) {
+            Cookies.set("auth_cookie", cookie)
+        }
+
         console.log("json is", json) // todo cleanup
 
     }
@@ -31,8 +34,7 @@ export function AuthError() {
 
         <form action={sendPassword}>
             <button type="submit">Submit me</button>
-            <input type="hidden" name="productId" value="cool product bro" />
-            <input type="hidden" name="password" value="pass" />
+            <input type="password" required name="password"/>
         </form>
 
         {/*<button onClick={() => Cookies.set('auth', 'password', { expires: 7, path: '/' })}>click to set!</button>*/}

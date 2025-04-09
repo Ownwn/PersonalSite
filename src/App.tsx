@@ -1,9 +1,9 @@
 import './App.css'
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import {TestPage} from "./routes/testMe.tsx";
 import NotFound from "./routes/notFound.tsx";
 import {HomePage} from "./routes/homePage.tsx";
-import ProtectedRoute from "./auth/protectedRoute.tsx";
+import {AuthPage} from "./auth/authPage.tsx";
+import {TestPage} from "./routes/testMe.tsx";
 
 
 function App() {
@@ -11,14 +11,8 @@ function App() {
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<HomePage />} />
-                <Route
-                    path="/test"
-                    element={
-                        <ProtectedRoute>
-                            <TestPage />
-                        </ProtectedRoute>
-                    }
-                />
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/test" element={<TestPage />} />
                 <Route path="*" element={<NotFound />} />
             </Routes>
         </BrowserRouter>

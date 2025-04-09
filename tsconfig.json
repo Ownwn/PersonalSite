@@ -13,6 +13,7 @@
             "@cloudflare/workers-types/2023-07-01"
         ],
         "noImplicitAny": false,
-        "noUnusedLocals": false
+        "noUnusedLocals": false,
+        "suppressImplicitAnyIndexErrors": true
     }
 }
