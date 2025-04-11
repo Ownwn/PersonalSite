@@ -3,11 +3,9 @@ export async function onRequestPost(context: EventContext) {
 
     try {
         const request: Request = context.request;
-        const requestJson = await request.json();
-        console.log(requestJson)
+        const requestJson: object = await request.json();
 
-        if (checkPassword(requestJson)) {
-            console.log("in check pwd!")
+        if (checkPassword(requestJson, context)) {
             return response(true, context.env.COOKIE_VALUE);
         }
 
@@ -35,9 +33,7 @@ function response(success: boolean, newCookie: string): Response {
 }
 
 // @ts-ignore
-
-
-function checkPassword(json) {
+function checkPassword(json: object, context: EventContext) {
     const password = json["password"];
-    return password && password === "pass";
+    return password && password === context.env.USER_PASSWORD;
 }

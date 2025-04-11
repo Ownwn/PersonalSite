@@ -1,4 +1,4 @@
-const baseUrl = "https://personalsite-29o.pages.dev";
+const baseUrl = "https://personalsite-29o.pages.dev"; // todo add main domain
 const baseUrlLocal = "http://127.0.0.1:8788";
 const authEndpoint = "auth";
 const checkAuthEndpoint = "checkAuth";

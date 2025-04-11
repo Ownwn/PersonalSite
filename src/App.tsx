@@ -2,7 +2,7 @@ import './App.css'
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import NotFound from "./routes/notFound.tsx";
 import {HomePage} from "./routes/homePage.tsx";
-import {AuthPage} from "./auth/authPage.tsx";
+import {AuthPage} from "./routes/authPage.tsx";
 import {TestPage} from "./routes/testMe.tsx";
 
 
