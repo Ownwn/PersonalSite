@@ -1,7 +1,8 @@
-const baseURL = "http://127.0.0.1:8788/";
-const authURL = "http://127.0.0.1:8788/auth";
-const authURL2 = "http://127.0.0.1:8788/checkAuth";
-const assetsURL = "http://127.0.0.1:8788/assets/";
+const baseUrl = "https://personalsite-29o.pages.dev";
+const baseUrlLocal = "http://127.0.0.1:8788";
+const authEndpoint = "auth";
+const checkAuthEndpoint = "checkAuth";
+const assetsEndpoint = "assets/";
 
 // @ts-ignore
 export async function onRequest(context: EventContext) {
@@ -19,13 +20,37 @@ export async function onRequest(context: EventContext) {
 
 // @ts-ignore
 function isFreeUrl(context: EventContext): boolean {
-    const url = context.request.url;
-    if (!url) {
+    const url = validateUrl(context.request.url);
+    if (url === undefined) {
         return false;
     }
 
-    return url === baseURL || url === authURL|| url === authURL2 || url.startsWith(assetsURL)
 
+    return url === "" || url === authEndpoint || url === checkAuthEndpoint || url === "bean" || url.startsWith(assetsEndpoint);
+}
+
+function validateUrl(url) {
+    if (!url) {
+        return undefined;
+    }
+
+    if (url.startsWith(baseUrl)) {
+        url = url.replace(baseUrl, "");
+    } else if (url.startsWith(baseUrlLocal)) {
+        url = url.replace(baseUrlLocal, "");
+    }
+
+    if (url.endsWith("/")) {
+        url = url.substring(0, url.length - 1);
+    }
+    if (url.startsWith("/")) {
+        url = url.substring(1, url.length);
+    }
+
+    if (url !== null && url !== undefined) {
+        return url;
+    }
+    return undefined;
 }
 
 // @ts-ignore
