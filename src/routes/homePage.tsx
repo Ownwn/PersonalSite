@@ -1,55 +1,103 @@
-import {useState} from "react";
-import viteLogo from "../assets/vite.svg";
-import reactLogo from "../assets/react.svg";
+import "./home.css";
+import { useEffect, useState } from "react";
+
+import email from "../assets/images/email.svg";
+import grades from "../assets/images/grades.svg";
+import hammer from "../assets/images/hammer.svg";
+import machine_learning from "../assets/images/machine-learning.svg";
+import network from "../assets/images/network.svg";
+import pc from "../assets/images/pc.svg";
+import ticket from "../assets/images/ticket.svg";
+import tutor from "../assets/images/tutor.svg";
+
 
 export function HomePage() {
-    const [count, setCount] = useState(0)
+
+    const [links, setLinks] = useState([]);
+
+    useEffect(() => {
+        fetch("homePageLink")
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error("Error fetching links :(");
+            })
+            .then(result => {
+                setLinks(result);
+            })
+            .catch(() => {
+                throw new Error("Error processing links :(");
+            });
+    }, []);
 
     return (
         <>
-            <div>
-                <a href="https://vite.dev" target="_blank">
-                    <img src={viteLogo} className="logo" alt="Vite logo"/>
-                </a>
-                <a href="https://react.dev" target="_blank">
-                    <img src={reactLogo} className="logo react" alt="React logo"/>
-                </a>
+
+            <div className="image-container">
+                <div className="image-box">
+                    <a href={links[0]}><img src={network}
+                                            alt="NWEN"
+                                            className="fit-image"/></a>
+                    <div className="image-name">NWEN ECS</div>
+                </div>
+
+                <div className="image-box">
+                    <a href={links[1]}><img
+                        src={machine_learning} alt="aiml" className="fit-image"/></a>
+                    <div className="image-name">AIML ECS</div>
+                </div>
+
+                <div className="image-box">
+                    <a href={links[2]}><img
+                        src={hammer} alt="SWEN" className="fit-image"/></a>
+                    <div className="image-name">SWEN ECS</div>
+                </div>
+
+                <div className="image-box">
+                    <a href={links[3]}><img
+                        src={pc} alt="COMP" className="fit-image"/></a>
+                    <div className="image-name">COMP ECS</div>
+                </div>
+
             </div>
-            <h1>Vite + React</h1>
-            <div className="card">
-                <button onClick={() => setCount((count) => count + 1)}>
-                    count is {count}
-                </button>
-                <p>
-                    Edit <code>src/App.tsx</code> and save to test HMR
-                </p>
+
+
+            <br/>
+            <br/>
+
+
+            <div className="image-container">
+
+
+                <div className="image-box">
+                    <a href={links[4]}><img src={tutor} alt="tutor"
+                                            className="fit-image"/></a>
+                    <div className="image-name">Nuku</div>
+                </div>
+
+                <div className="image-box">
+                    <a href={links[5]}><img src={email} alt="email"
+                                            className="fit-image"/></a>
+                    <div className="image-name">Email</div>
+                </div>
+
+                <div className="image-box">
+                    <a href={links[6]}><img src={ticket} alt="email"
+                                            className="fit-image"/></a>
+                    <div className="image-name">Tickets</div>
+                </div>
+
+                <div className="image-box">
+                    <a href={links[7]}><img src={grades}
+                                            alt="grades"
+                                            className="fit-image"/></a>
+                    <div className="image-name">Marking</div>
+                </div>
+
             </div>
-            <p className="read-the-docs">
-                Click on the Vite and React logos to learn more
-            </p>
-            <HelloBox/>
-            <a href={"/test"}>does it work?</a>
         </>
 
 
-    )
-}
-
-function HelloBox() {
-    const [hello, setHello] = useState("");
-
-    return (
-        <>
-            <button onClick={async () => setHello(await getResponse())}>
-                response is {hello}
-            </button>
-
-        </>
-    )
-
-}
-
-async function getResponse() {
-    let response = await fetch("helloworld")
-    return JSON.stringify(await response.json());
+    );
 }

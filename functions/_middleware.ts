@@ -2,7 +2,7 @@ const baseUrl = "https://personalsite-29o.pages.dev"; // todo add main domain
 const baseUrlLocal = "http://127.0.0.1:8788";
 const assetsEndpoint = "assets/";
 
-const freeEndpoints = ["robots.txt", "", "auth", "checkAuth", "404", "favicon.ico"]
+const freeEndpoints = ["homePageLink", "robots.txt", "", "auth", "checkAuth", "404", "favicon.ico"]
 
 // @ts-ignore
 export async function onRequest(context: EventContext) {
