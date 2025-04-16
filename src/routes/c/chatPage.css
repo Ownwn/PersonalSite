@@ -46,6 +46,7 @@ textarea {
     margin: 0 auto;
     word-wrap: break-word;
     white-space: pre-line;
+    text-align: left;
 }
 
 .response-box {

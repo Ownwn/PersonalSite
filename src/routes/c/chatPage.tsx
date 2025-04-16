@@ -113,7 +113,7 @@ export function ChatPage() {
 
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
-        setBotResponse("loading..");
+        setBotResponse("Loading..");
         setBotResponse(await submitPrompt());
     }
 
