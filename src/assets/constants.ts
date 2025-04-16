@@ -3,9 +3,9 @@ export const claudeEndpoint = "https://api.anthropic.com/v1/messages";
 
 export const models = [
     { id: 1, cute_name: `Claude`, api_name: "claude-3-7-sonnet-latest" },
-    { id: 3, cute_name: `GPT-4.1`, api_name: "gpt-4.1" },
-    { id: 4, cute_name: `o1 Mini`, api_name: "o1-mini" },
-    { id: 5, cute_name: `Thinking Claude`, api_name: "claude-3-7-sonnet-latest" }
+    { id: 2, cute_name: `Thinking Claude`, api_name: "claude-3-7-sonnet-latest" },
+    { id: 3, cute_name: `GPT-4.1`, api_name: "gpt-4.1" }
+
 ];
 
 export const defaultPrompt = "Provide useful answers and avoid unnecessary pleasantries. Alert the user if you are " +
