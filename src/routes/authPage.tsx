@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
-import {useState} from "react";
-import {useFormStatus} from "react-dom";
+import { useState } from "react";
+import { useFormStatus } from "react-dom";
 
 export function AuthPage() {
     const [response, setResponse] = useState("");
@@ -15,17 +15,15 @@ export function AuthPage() {
     </>;
 
     function PasswordForm() {
-        const status = useFormStatus()
+        const status = useFormStatus();
         return (
             <>
                 <button type="submit">Submit me</button>
                 <input type="password" required name="password"/>
                 <p>{status.pending ? "Loading.." : response}</p>
             </>
-        )
-        // return <p>status is {String(status.pending)} and {String(false)}</p>
+        );
     }
-
 
 
     async function sendPassword(formData: any) {

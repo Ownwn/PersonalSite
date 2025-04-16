@@ -1,11 +1,11 @@
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 
 export function TestPage() {
     const [link, setLink] = useState("");
 
     useEffect(() => {
         getLink().then(linkValue => {
-            console.log("link one!")
+            console.log("link one!");
             setLink(linkValue);
         });
     }, []);
@@ -16,12 +16,12 @@ export function TestPage() {
             <p>this is a test page :)</p>
             <a href={link}>secret link!</a>
         </>
-    )
+    );
 }
 
 async function getLink() {
     return fetch("getlink").then(res => {
-        console.log("link is ", res.ok, res.status)
-        return res.ok ? res.text() : "404"
-    })
+        console.log("link is ", res.ok, res.status);
+        return res.ok ? res.text() : "404";
+    });
 }

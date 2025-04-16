@@ -33,10 +33,11 @@ html {
     scale: 150%;
     padding: 30px;
 }
+
 .image-box img {
     max-width: 100%;
     height: auto;
-    display:block;
+    display: block;
     scale: 200%;
 }
 
