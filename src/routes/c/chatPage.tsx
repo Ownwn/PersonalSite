@@ -121,9 +121,9 @@ export function ChatPage() {
     async function submitPrompt() {
 
         const request = {
-            "question": question,
-            "model": model,
-            system: system
+            question: question,
+            model_id: model,
+            system_prompt: system
         };
 
         const response = await fetch("chatEndpoint", {
@@ -139,7 +139,7 @@ export function ChatPage() {
         }
         try {
             const json = await response.json();
-            return json["answer"];
+            return json.answer // todo format text align etc line break
         } catch (e) {
             return "Error parsing response!";
         }
