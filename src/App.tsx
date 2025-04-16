@@ -1,8 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import NotFound from "./routes/notFound.tsx";
-import { HomePage } from "./routes/homePage.tsx";
+import { HomePage } from "./routes/home/homePage.tsx";
 import { AuthPage } from "./routes/authPage.tsx";
-import { TestPage } from "./routes/testMe.tsx";
 import { ChatPage } from "./routes/c/chatPage.tsx";
 
 
@@ -12,7 +11,6 @@ function App() {
             <Routes>
                 <Route path="/" element={<HomePage/>}/>
                 <Route path="/auth" element={<AuthPage/>}/>
-                <Route path="/test" element={<TestPage/>}/>
                 <Route path="/c" element={<ChatPage/>}/>
                 <Route path="*" element={<NotFound/>}/>
             </Routes>
