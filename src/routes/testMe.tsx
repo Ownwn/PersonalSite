@@ -20,5 +20,8 @@ export function TestPage() {
 }
 
 async function getLink() {
-    return fetch("getlink").then(res => res.text())
+    return fetch("getlink").then(res => {
+        console.log("link is ", res.ok, res.status)
+        return res.ok ? res.text() : "404"
+    })
 }

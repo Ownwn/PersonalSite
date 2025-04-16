@@ -1,8 +1,8 @@
 const baseUrl = "https://personalsite-29o.pages.dev"; // todo add main domain
 const baseUrlLocal = "http://127.0.0.1:8788";
-const authEndpoint = "auth";
-const checkAuthEndpoint = "checkAuth";
 const assetsEndpoint = "assets/";
+
+const freeEndpoints = ["hi.txt", "", "auth", "checkAuth", "404", "favicon.ico", "bean"]
 
 // @ts-ignore
 export async function onRequest(context: EventContext) {
@@ -24,9 +24,7 @@ function isFreeUrl(context: EventContext): boolean {
     if (url === undefined) {
         return false;
     }
-
-
-    return url === "" || url === authEndpoint || url === checkAuthEndpoint || url === "bean" || url.startsWith(assetsEndpoint);
+    return freeEndpoints.indexOf(url) !== -1 || url.startsWith(assetsEndpoint)
 }
 
 function validateUrl(url) {

@@ -1,5 +1,6 @@
 // @ts-ignore
 export async function onRequestPost(context: EventContext) {
+    await sleep(1000 + Math.random() * 2000) // good enough
 
     try {
         const request: Request = context.request;
@@ -36,4 +37,9 @@ function response(success: boolean, newCookie: string): Response {
 function checkPassword(json: object, context: EventContext) {
     const password = json["password"];
     return password && password === context.env.USER_PASSWORD;
+}
+
+function sleep(time: number) {
+    // @ts-ignore
+    return new Promise(resolve => setTimeout(resolve, time));
 }
