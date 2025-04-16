@@ -1,0 +1,119 @@
+html {
+    --hdr-gradient: linear-gradient(
+            to right in oklab,
+            oklch(79% 0.3 40) 0%, oklch(93% 0.42 94) 114% 114%
+    );
+    --sdr-gradient: linear-gradient(to right, #ff4c00 0%, #ffce00 114% 114%);
+
+    background: var(--hdr-gradient);
+
+
+
+    /*background: linear-gradient(45deg, rgb(17, 222, 176) 20%, rgb(21, 172, 179) 40%, rgb(26, 105, 182) 60%, rgb(29, 75, 183) 80%, rgb(33, 22, 186) 100%) no-repeat;*/
+    min-height: 100%;
+}
+
+textarea {
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    border: none;
+}
+
+.title {
+    font-size: 3vmax;
+    background: linear-gradient(90deg, #1CB5E0 0%, #000851 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    width: fit-content;
+    margin: 0 auto;
+    padding: 10px;
+}
+
+.title-box {
+    margin: 2vh 20vw;
+    border-radius: 1vmax;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.response {
+    background-color: black;
+    font-size: 25px;
+    font-family: Georgia, serif;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin: 0 auto;
+    word-wrap: break-word;
+    white-space: pre-line;
+}
+
+.response-box {
+    margin: 2vh 10vw 3vh;
+    padding: 15px 10px;
+    border-radius: 2vmax;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.cent {
+    text-align: center;
+}
+
+.cent2 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.question {
+
+    min-width: 80%;
+    height: 140px;
+    font-size: 16px;
+    font-family: Georgia, serif;
+}
+
+.system {
+    width: 25vw;
+    height: 100px;
+    font-size: 16px;
+    font-family: Georgia, serif;
+}
+
+.promptButton {
+    width: 12vh;
+    margin-left: 8px;
+    color: black;
+    background-color: rgba(86, 86, 86, 0.3);
+    border-radius: 5px;
+    border-width: 0;
+    height: 40px;
+    font-size: 18px;
+}
+
+.promptButton:hover, .submitButton:hover {
+    background-color: rgba(255,255,255, 0.5);
+}
+
+.submitButton {
+    width: 18vh;
+    margin-left: 8px;
+    color: black;
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 5px;
+    border-width: 0;
+    height: 40px;
+    font-size: 18px;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    padding: 10px;
+    color: white;
+    max-width: 500px;
+}

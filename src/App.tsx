@@ -4,6 +4,7 @@ import NotFound from "./routes/notFound.tsx";
 import { HomePage } from "./routes/homePage.tsx";
 import { AuthPage } from "./routes/authPage.tsx";
 import { TestPage } from "./routes/testMe.tsx";
+import { ChatPage } from "./routes/c/chatPage.tsx";
 
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
                 <Route path="/" element={<HomePage/>}/>
                 <Route path="/auth" element={<AuthPage/>}/>
                 <Route path="/test" element={<TestPage/>}/>
+                <Route path="/c" element={<ChatPage/>}/>
                 <Route path="*" element={<NotFound/>}/>
             </Routes>
         </BrowserRouter>
