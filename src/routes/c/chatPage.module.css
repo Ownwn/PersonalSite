@@ -1,4 +1,4 @@
-html {
+.chatBackground {
     --hdr-gradient: linear-gradient(
             to right in oklab,
             oklch(79% 0.3 40) 0%, oklch(93% 0.42 94) 114% 114%
@@ -7,17 +7,22 @@ html {
 
     background: var(--hdr-gradient);
 
+    min-height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
+
 
 
     /*background: linear-gradient(45deg, rgb(17, 222, 176) 20%, rgb(21, 172, 179) 40%, rgb(26, 105, 182) 60%, rgb(29, 75, 183) 80%, rgb(33, 22, 186) 100%) no-repeat;*/
-    min-height: 100%;
+
 }
 
-textarea {
-    background-color: #e0e0e0;
-    border-radius: 5px;
-    border: none;
-}
 
 .title {
     font-size: 3vmax;
@@ -30,7 +35,7 @@ textarea {
     padding: 10px;
 }
 
-.title-box {
+.titleBox {
     margin: 2vh 20vw;
     border-radius: 1vmax;
     background-color: rgba(255, 255, 255, 0.5);
@@ -49,7 +54,7 @@ textarea {
     text-align: left;
 }
 
-.response-box {
+.responseBox {
     margin: 2vh 10vw 3vh;
     padding: 15px 10px;
     border-radius: 2vmax;
@@ -69,7 +74,6 @@ textarea {
 }
 
 .question {
-
     min-width: 80%;
     height: 170px;
     font-size: 16px;
@@ -81,6 +85,10 @@ textarea {
     height: 100px;
     font-size: 16px;
     font-family: Georgia, serif;
+
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    border: none;
 }
 
 .promptButton {
@@ -109,7 +117,7 @@ textarea {
     font-size: 18px;
 }
 
-.checkbox-group {
+.checkboxGroup {
     display: flex;
     align-items: center;
     background-color: rgba(255, 255, 255, 0.5);

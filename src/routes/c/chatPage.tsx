@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 
-import "./chatPage.css";
+import styles from "./chatPage.module.css";
+
 
 import { defaultPrompt, experimentalPrompt, models, prompterPrompt } from "../../assets/constants.ts";
 
@@ -16,27 +17,27 @@ export function ChatPage() {
 
 
     return (
-        <>
+        <div className={styles.chatBackground}>
             <br/>
             <br/>
             <br/>
             <br/>
             <br/>
 
-            <div className={"cent"}>
+            <div className={styles.cent}>
                 <form onSubmit={handleSubmit}>
-                    <button className="submitButton" type="submit">Submit</button>
+                    <button className={styles.submitButton} type="submit">Submit</button>
                     <br/>
                     <textarea onChange={e => setQuestion(e.target.value)} value={question} name={"question"}
-                              placeholder="Question" className="question" required/>
+                              placeholder="Question" className={styles.question} required/>
                     <br/>
 
-                    <div className="cent2">
-                        <div className="checkbox-group">
+                    <div className={styles.cent2}>
+                        <div className={styles.checkboxGroup}>
 
                             <ModelSelector/>
 
-                            <button type="button" className="promptButton"
+                            <button type="button" className={styles.promptButton}
                                     onClick={() => setPromptStuff(!promptStuff)}>Toggle
                             </button>
 
@@ -47,7 +48,7 @@ export function ChatPage() {
                         </div>
                     </div>
                     <textarea onChange={e => setSystem(e.target.value)} value={system} name={"system"} rows={4}
-                              cols={50} placeholder="System" className="system"/>
+                              cols={50} placeholder="System" className={styles.system}/>
 
                 </form>
 
@@ -56,7 +57,7 @@ export function ChatPage() {
                 <ResponseBox/>
             </div>
 
-        </>
+        </div>
     );
 
     function ModelSelector() {
@@ -76,18 +77,18 @@ export function ChatPage() {
         if (!botResponse) {
             return <></>;
         }
-        return <div className="response-box">
-            <p className="response">{botResponse}</p>
+        return <div className={styles.responseBox}>
+            <p className={styles.response}>{botResponse}</p>
         </div>;
     }
 
     function PromptTools() {
         if (promptStuff) {
             return <>
-                <button type="button" className="promptButton" onClick={resetSystem}>Default</button>
-                <button type="button" className="promptButton" onClick={experimentalSystem}>Experimental</button>
-                <button type="button" className="promptButton" onClick={promptSystem}>Prompter</button>
-                <button type="button" className="promptButton" onClick={usePrompt}>Use</button>
+                <button type="button" className={styles.promptButton} onClick={resetSystem}>Default</button>
+                <button type="button" className={styles.promptButton} onClick={experimentalSystem}>Experimental</button>
+                <button type="button" className={styles.promptButton} onClick={promptSystem}>Prompter</button>
+                <button type="button" className={styles.promptButton} onClick={usePrompt}>Use</button>
             </>;
         }
 
@@ -139,7 +140,7 @@ export function ChatPage() {
         }
         try {
             const json = await response.json();
-            return json.answer // todo format text align etc line break
+            return json.answer; // todo format text align etc line break
         } catch (e) {
             return "Error parsing response!";
         }
