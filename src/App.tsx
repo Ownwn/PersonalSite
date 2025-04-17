@@ -1,5 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import NotFound from "./routes/notFound.tsx";
+import { NotFound } from "./routes/notFound.tsx";
 import { HomePage } from "./routes/home/homePage.tsx";
 import { AuthPage } from "./routes/authPage.tsx";
 import { ChatPage } from "./routes/c/chatPage.tsx";
