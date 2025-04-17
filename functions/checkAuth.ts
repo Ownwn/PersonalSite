@@ -1,6 +1,5 @@
-// @ts-ignore
-export async function onRequestPost(context: EventContext) {
-    await sleep(1000 + Math.random() * 2000) // good enough
+export async function onRequestPost(context: EventContext<any, any, any>) {
+    await sleep(1000 + Math.random() * 2000); // good enough
 
     try {
         const request: Request = context.request;
@@ -13,7 +12,7 @@ export async function onRequestPost(context: EventContext) {
     } catch (_error) { /* ignore parsing fail, will return bad response anyway */
     }
 
-    return response(false, undefined)
+    return response(false, undefined);
 }
 
 function response(success: boolean, newCookie: string): Response {
@@ -33,8 +32,7 @@ function response(success: boolean, newCookie: string): Response {
     });
 }
 
-// @ts-ignore
-function checkPassword(json: object, context: EventContext) {
+function checkPassword(json: object, context: EventContext<any, any, any>) {
     const password = json["password"];
     return password && password === context.env.USER_PASSWORD;
 }

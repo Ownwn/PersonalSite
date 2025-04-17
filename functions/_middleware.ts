@@ -4,8 +4,7 @@ const assetsEndpoint = "assets/";
 
 const freeEndpoints = ["robots.txt", "auth", "checkAuth", "404", "favicon.ico"]
 
-// @ts-ignore
-export async function onRequest(context: EventContext) {
+export async function onRequest(context: EventContext<any, any, any>) {
     if (isFreeUrl(context) || checkCookie(context)) {
         return await context.next();
     }
@@ -18,8 +17,7 @@ export async function onRequest(context: EventContext) {
 
 }
 
-// @ts-ignore
-function isFreeUrl(context: EventContext): boolean {
+function isFreeUrl(context: EventContext<any, any, any>): boolean {
     const url = validateUrl(context.request.url);
     if (url === undefined) {
         return false;
@@ -27,7 +25,7 @@ function isFreeUrl(context: EventContext): boolean {
     return freeEndpoints.indexOf(url) !== -1 || url.startsWith(assetsEndpoint)
 }
 
-function validateUrl(url) {
+function validateUrl(url: string) {
     if (!url) {
         return undefined;
     }
@@ -51,8 +49,7 @@ function validateUrl(url) {
     return undefined;
 }
 
-// @ts-ignore
-function checkCookie(context: EventContext): boolean {
+function checkCookie(context: EventContext<any, any, any>): boolean {
     const cookies = context.request.headers.get("cookie");
     if (!cookies || cookies.length > 200) {
         return false;

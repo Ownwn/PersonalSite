@@ -1,8 +1,4 @@
 import { claudeEndpoint, models, openAiEndpoint } from "../src/assets/constants";
-//import {EventContext} from "@cloudflare/workers-types"
-
-
-
 
 
 export async function onRequestPost(context: EventContext<any, any, any>) {
@@ -14,7 +10,7 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
     try {
         userData = await context.request.json();
     } catch (e) {
-        return error
+        return error;
     }
 
 
@@ -81,16 +77,14 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
         body: JSON.stringify(requestBody)
     });
 
-    const json: any = await response.json();
-
 
     if (!response.ok) {
-        console.log(json);
-
         return genErrorResponse("Error interacting with OpenAI API.", response.status);
     }
 
-    const goodJson = {answer: ""}
+    const json: any = await response.json();
+
+    const goodJson = { answer: "" };
 
     if (isStandardClaude) {
         goodJson.answer = json.content[0].text;
@@ -107,8 +101,8 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
 
     function genErrorResponse(message: string, statusCode: number) {
         return new Response(JSON.stringify({ message: message }), {
-            headers: { "Content-Type": 'application/json' },
-            status: statusCode,
+            headers: { "Content-Type": "application/json" },
+            status: statusCode
         });
     }
 }

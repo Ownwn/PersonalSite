@@ -25,7 +25,8 @@ export default tseslint.config(
             ],
             "no-const-assign": "warn",
             "prefer-const": "warn",
-            "no-unused-vars": "warn",
+            "no-unused-vars": ["warn", { "argsIgnorePattern": "^_|^context$" }],
+            "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_|^context$" }],
             "@typescript-eslint/no-explicit-any": "off",
             "@typescript-eslint/ban-ts-comment": "warn"
         },

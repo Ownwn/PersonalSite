@@ -97,7 +97,5 @@ export function HomePage() {
 
             </div>
         </div>
-
-
     );
 }

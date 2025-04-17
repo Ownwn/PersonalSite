@@ -1,5 +1,4 @@
-// @ts-ignore
-export async function onRequest(context: EventContext) {
+export async function onRequest(context: EventContext<any, any, any>) {
     const result = [];
 
     for (let i = 0; i < 8; i++) {
