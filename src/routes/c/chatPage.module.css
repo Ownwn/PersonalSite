@@ -49,6 +49,13 @@
     text-align: left;
 }
 
+.codeResponse {
+    color: black;
+    font-family: "Cascadia Code";
+    white-space: pre;
+    background-color: #727272;
+}
+
 .responseBox {
     margin: 2vh 10vw 3vh;
     padding: 15px 10px;

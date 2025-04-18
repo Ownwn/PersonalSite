@@ -74,10 +74,26 @@ export function ChatPage() {
 
     function FormattedResponse() {
         const properResponse = [];
-        const boldRegex = RegExp("\\*\\*([^*]+)\\*\\*")
+        const boldRegex = RegExp("\\*\\*([^*]+)\\*\\*");
 
         let key = 0;
+        let isCodeLine = false;
         for (let line of botResponse.split("\n")) {
+
+            if (line.startsWith("```")) {
+                isCodeLine = !isCodeLine;
+
+                key++;
+                continue;
+            }
+
+            if (isCodeLine) {
+                properResponse.push(<><span className={styles.codeResponse}>{line}</span><br/></>);
+
+                key++;
+                continue;
+            }
+
             let headerCount = 0;
             while (line.startsWith("#")) {
                 line = line.substring(1, line.length);
@@ -86,12 +102,12 @@ export function ChatPage() {
 
             if (boldRegex.test(line)) {
                 // @ts-ignore
-                line = getBoldLine(line) // changing types - probably bad but whatever
+                line = getBoldLine(line); // changing types - probably bad but whatever
             }
 
             if (headerCount > 0) {
                 // @ts-ignore
-                line = getHeaderLine(line, headerCount, key)
+                line = getHeaderLine(line, headerCount, key);
             }
 
 
@@ -106,27 +122,35 @@ export function ChatPage() {
     function getHeaderLine(line: string, headerCount: number, key: number) {
         let newLine;
         switch (headerCount) {
-            case 1: newLine = <h2 key={key}>{line}</h2>; break;
-            case 2: newLine = <h3 key={key}>{line}</h3>; break;
-            case 3: newLine = <h4 key={key}>{line}</h4>; break;
-            default: newLine = <span key={key}>{line}</span>; break;
+            case 1:
+                newLine = <h2 key={key}>{line}</h2>;
+                break;
+            case 2:
+                newLine = <h3 key={key}>{line}</h3>;
+                break;
+            case 3:
+                newLine = <h4 key={key}>{line}</h4>;
+                break;
+            default:
+                newLine = <span key={key}>{line}</span>;
+                break;
         }
         return newLine;
     }
 
     function getBoldLine(line: string) {
-        const lineChunks = line.split("**")
+        const lineChunks = line.split("**");
 
-        const formattedChunks = []
+        const formattedChunks = [];
         for (let i = 0; i < lineChunks.length; i++) {
-            if (i % 2 ==0) {
-                formattedChunks.push(<span key={i}>{lineChunks[i]}</span>)
+            if (i % 2 == 0) {
+                formattedChunks.push(<span key={i}>{lineChunks[i]}</span>);
             } else {
-                formattedChunks.push(<strong key={i}>{lineChunks[i]}</strong>)
+                formattedChunks.push(<strong key={i}>{lineChunks[i]}</strong>);
             }
         }
 
-        return <>{formattedChunks}</>
+        return <>{formattedChunks}</>;
     }
 
 
@@ -216,8 +240,7 @@ export function ChatPage() {
         try {
             const json = await response.json();
             const answer: string = json.answer;
-            console.log("\n\n" + answer + "\n\n")
-
+            console.log("\n\n" + answer + "\n\n");
 
             return answer;
         } catch (e) {
