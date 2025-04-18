@@ -1,6 +1,5 @@
-const baseUrl = "https://personalsite-29o.pages.dev";
-const baseUrlDns = "https://ownwn.com";
-const baseUrlLocal = "http://127.0.0.1:8788";
+const urls = ["https://personalsite-29o.pages.dev", "https://ownwn.com", "http://192.168.1.193:8788", "http://127.0.0.1:8788"]
+
 const assetsEndpoint = "assets/";
 
 const freeEndpoints = ["robots.txt", "auth", "checkAuth", "404", "favicon.ico"]
@@ -31,12 +30,11 @@ function validateUrl(url: string) {
         return undefined;
     }
 
-    if (url.startsWith(baseUrl)) {
-        url = url.replace(baseUrl, "");
-    } else if (url.startsWith(baseUrlLocal)) {
-        url = url.replace(baseUrlLocal, "");
-    } else if (url.startsWith(baseUrlDns)) {
-        url = url.replace(baseUrlDns, "")
+    for (const validUrl of urls) {
+        if (url.startsWith(validUrl)) {
+            url = url.replace(validUrl, "");
+            break;
+        }
     }
 
     if (url.endsWith("/")) {
