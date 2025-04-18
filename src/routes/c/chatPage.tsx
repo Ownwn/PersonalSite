@@ -72,13 +72,70 @@ export function ChatPage() {
         </>;
     }
 
+    function FormattedResponse() {
+        const properResponse = [];
+        const boldRegex = RegExp("\\*\\*([^*]+)\\*\\*")
+
+        let key = 0;
+        for (let line of botResponse.split("\n")) {
+            let headerCount = 0;
+            while (line.startsWith("#")) {
+                line = line.substring(1, line.length);
+                headerCount++;
+            }
+
+            let isBold = false
+
+            if (boldRegex.test(line)) {
+                // @ts-ignore
+                line = getBoldLine(line) // changing types - probably bad but whatever
+
+                isBold = true;
+            }
+
+
+            switch (headerCount) {
+                case 1: properResponse.push(<h2 key={key}>{line}</h2>); break;
+                case 2: properResponse.push(<h3 key={key}>{line}</h3>); break;
+                case 3: properResponse.push(<h4 key={key}>{line}</h4>); break;
+                default: {
+                    if (isBold) {
+                        properResponse.push(<div key={key}>{line}</div>);
+                    } else {
+                        properResponse.push(<span key={key}>{line}</span>);
+                    }
+                    break;
+                }
+            }
+
+
+            key++;
+        }
+        return properResponse;
+    }
+
+    function getBoldLine(line: string) {
+        const lineChunks = line.split("**")
+
+        const formattedChunks = []
+        for (let i = 0; i < lineChunks.length; i++) {
+            if (i % 2 ==0) {
+                formattedChunks.push(<span key={i}>{lineChunks[i]}</span>)
+            } else {
+                formattedChunks.push(<strong key={i}>{lineChunks[i]}</strong>)
+            }
+        }
+
+        return <>{formattedChunks}</>
+    }
+
 
     function ResponseBox() {
         if (!botResponse) {
             return <></>;
         }
         return <div className={styles.responseBox}>
-            <p className={styles.response}>{botResponse}</p>
+            <div className={styles.response}>{FormattedResponse()}</div>
         </div>;
     }
 
@@ -136,11 +193,33 @@ export function ChatPage() {
         });
 
         if (!response.ok) {
-            return "Error loading data!";
+            return "# Main Header\n" +
+                "\n" +
+                "This is some normal text that flows after the main header.\n" +
+                "\n" +
+                "## Section 1\n" +
+                "\n" +
+                "Here's a paragraph with **bold text** embedded within normal text. The bold text stands out from the rest.\n" +
+                "\n" +
+                "### Subsection 1.1\n" +
+                "\n" +
+                "Normal text continues in this subsection. **Multiple bold words** can appear anywhere in the text.\n" +
+                "\n" +
+                "## Section 2\n" +
+                "\n" +
+                "This section **contains** more **bold formatting** for testing purposes.\n" +
+                "\n" +
+                "# Another Main Header\n" +
+                "\n" +
+                "Some final text under the second main header with a **bold conclusion**.\n Here's some single **stuff yeah\n **and another!\nhi";
         }
         try {
             const json = await response.json();
-            return json.answer; // todo format text align etc line break
+            const answer: string = json.answer;
+            console.log("\n\n" + answer + "\n\n")
+
+
+            return answer;
         } catch (e) {
             return "Error parsing response!";
         }
