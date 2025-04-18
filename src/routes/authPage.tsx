@@ -53,8 +53,10 @@ export function AuthPage() {
         Cookies.set("auth_cookie", cookie, {
             expires: 30,
             path: "/",
-            sameSite: "Lax",
-            secure: window.location.protocol === "https:"
+            domain: "ownwn.com",
+            sameSite: "strict",
+            // secure: window.location.protocol === "https:"
+            secure: true
         });
 
         setResponse("Cookie set!");
