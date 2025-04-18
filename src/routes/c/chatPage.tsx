@@ -84,34 +84,34 @@ export function ChatPage() {
                 headerCount++;
             }
 
-            let isBold = false
-
             if (boldRegex.test(line)) {
                 // @ts-ignore
                 line = getBoldLine(line) // changing types - probably bad but whatever
+            }
 
-                isBold = true;
+            if (headerCount > 0) {
+                // @ts-ignore
+                line = getHeaderLine(line, headerCount, key)
             }
 
 
-            switch (headerCount) {
-                case 1: properResponse.push(<h2 key={key}>{line}</h2>); break;
-                case 2: properResponse.push(<h3 key={key}>{line}</h3>); break;
-                case 3: properResponse.push(<h4 key={key}>{line}</h4>); break;
-                default: {
-                    if (isBold) {
-                        properResponse.push(<div key={key}>{line}</div>);
-                    } else {
-                        properResponse.push(<span key={key}>{line}</span>);
-                    }
-                    break;
-                }
-            }
+            properResponse.push(<div>{line}</div>);
 
 
             key++;
         }
         return properResponse;
+    }
+
+    function getHeaderLine(line: string, headerCount: number, key: number) {
+        let newLine;
+        switch (headerCount) {
+            case 1: newLine = <h2 key={key}>{line}</h2>; break;
+            case 2: newLine = <h3 key={key}>{line}</h3>; break;
+            case 3: newLine = <h4 key={key}>{line}</h4>; break;
+            default: newLine = <span key={key}>{line}</span>; break;
+        }
+        return newLine;
     }
 
     function getBoldLine(line: string) {
