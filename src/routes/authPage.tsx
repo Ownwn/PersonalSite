@@ -50,7 +50,12 @@ export function AuthPage() {
             setResponse("Fail");
             return;
         }
-        Cookies.set("auth_cookie", cookie, { expires: 30, path: "/" });
+        Cookies.set("auth_cookie", cookie, {
+            expires: 30,
+            path: "/",
+            sameSite: "Lax",
+            secure: window.location.protocol === "https:"
+        });
 
         setResponse("Cookie set!");
     }
