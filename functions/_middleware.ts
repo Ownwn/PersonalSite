@@ -1,4 +1,5 @@
-const baseUrl = "https://personalsite-29o.pages.dev"; // todo add main domain
+const baseUrl = "https://personalsite-29o.pages.dev";
+const baseUrlDns = "https://ownwn.com";
 const baseUrlLocal = "http://127.0.0.1:8788";
 const assetsEndpoint = "assets/";
 
@@ -34,6 +35,8 @@ function validateUrl(url: string) {
         url = url.replace(baseUrl, "");
     } else if (url.startsWith(baseUrlLocal)) {
         url = url.replace(baseUrlLocal, "");
+    } else if (url.startsWith(baseUrlDns)) {
+        url = url.replace(baseUrlDns, "")
     }
 
     if (url.endsWith("/")) {
