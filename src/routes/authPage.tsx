@@ -1,4 +1,3 @@
-import Cookies from "js-cookie";
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
 
@@ -27,7 +26,6 @@ export function AuthPage() {
 
 
     async function sendPassword(formData: any) {
-
         setResponse("Loading...");
 
         const res = await fetch("checkAuth", {
@@ -38,29 +36,7 @@ export function AuthPage() {
             body: JSON.stringify(Object.fromEntries(formData))
         });
 
-        const json = await res.json();
-
-        setCookie(json["cookie"]);
+        setResponse(res.ok ? "Cookie set!" : "Fail")
 
     }
-
-
-    function setCookie(cookie: string) {
-        if (!cookie) {
-            setResponse("Fail");
-            return;
-        }
-        Cookies.set("auth_cookie", cookie, {
-            expires: 30,
-            path: "/",
-            domain: "ownwn.com",
-            sameSite: "strict",
-            // secure: window.location.protocol === "https:"
-            secure: true
-        });
-
-        setResponse("Cookie set!");
-    }
-
-
 }

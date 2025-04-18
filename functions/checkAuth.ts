@@ -6,29 +6,19 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
         const requestJson: object = await request.json();
 
         if (checkPassword(requestJson, context)) {
-            return response(true, context.env.COOKIE_VALUE);
+            return new Response(null, {
+                status: 200,
+                headers: {
+                    "Set-Cookie": `auth_cookie=${context.env.COOKIE_VALUE}; Max-Age=${30 * 24 * 60 * 60}; Path=/;`
+                }
+            });
         }
 
     } catch (_error) { /* ignore parsing fail, will return bad response anyway */
     }
 
-    return response(false, undefined);
-}
-
-function response(success: boolean, newCookie: string): Response {
-    const responseJson = {};
-    responseJson["success"] = success;
-
-    if (newCookie) {
-        responseJson["set_cookie"] = true;
-        responseJson["cookie"] = newCookie;
-    }
-
-    return new Response(JSON.stringify(responseJson), {
-        status: success ? 200 : 401,
-        headers: {
-            "Content-Type": "application/json"
-        }
+    return new Response(null, {
+        status: 401
     });
 }
 
