@@ -217,25 +217,7 @@ export function ChatPage() {
         });
 
         if (!response.ok) {
-            return "# Main Header\n" +
-                "\n" +
-                "This is some normal text that flows after the main header.\n" +
-                "\n" +
-                "## Section 1\n" +
-                "\n" +
-                "Here's a paragraph with **bold text** embedded within normal text. The bold text stands out from the rest.\n" +
-                "\n" +
-                "### Subsection 1.1\n" +
-                "\n" +
-                "Normal text continues in this subsection. **Multiple bold words** can appear anywhere in the text.\n" +
-                "\n" +
-                "## Section 2\n" +
-                "\n" +
-                "This section **contains** more **bold formatting** for testing purposes.\n" +
-                "\n" +
-                "# Another Main Header\n" +
-                "\n" +
-                "Some final text under the second main header with a **bold conclusion**.\n Here's some single **stuff yeah\n **and another!\nhi";
+            return "Not found..."
         }
         try {
             const json = await response.json();

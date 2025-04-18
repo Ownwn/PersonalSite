@@ -53,7 +53,7 @@
     color: black;
     font-family: "Cascadia Code";
     white-space: pre;
-    background-color: #727272;
+    background-color: rgba(255, 255, 255, 0.22);
 }
 
 .responseBox {
