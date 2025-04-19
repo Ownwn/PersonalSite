@@ -52,7 +52,7 @@ function validateUrl(url: string) {
 
 function checkCookie(context: EventContext<any, any, any>): boolean {
     const cookies = context.request.headers.get("cookie");
-    if (!cookies || cookies.length > 200) {
+    if (!cookies) {
         return false;
     }
 

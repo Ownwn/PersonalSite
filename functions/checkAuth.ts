@@ -9,7 +9,7 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
             return new Response(null, {
                 status: 200,
                 headers: {
-                    "Set-Cookie": `auth_cookie=${context.env.COOKIE_VALUE}; Max-Age=${30 * 24 * 60 * 60}; Path=/; SameSite=Lax; Secure;`
+                    "Set-Cookie": `auth_cookie=${context.env.COOKIE_VALUE}; Max-Age=${30 * 24 * 60 * 60}; Path=/; SameSite=None; Secure;`
                 }
             });
         }
