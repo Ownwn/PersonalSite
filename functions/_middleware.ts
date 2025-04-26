@@ -1,5 +1,3 @@
-const urls = ["https://personalsite-29o.pages.dev", "https://ownwn.com", "http://192.168.1.193:8788", "http://127.0.0.1:8788"]
-
 const assetsEndpoint = "assets/";
 
 const freeEndpoints = ["robots.txt", "auth", "checkAuth", "404", "favicon.ico"]
@@ -30,22 +28,17 @@ function validateUrl(url: string) {
         return undefined;
     }
 
-    for (const validUrl of urls) {
-        if (url.startsWith(validUrl)) {
-            url = url.replace(validUrl, "");
-            break;
-        }
+    let endpoint = new URL(url).pathname
+
+    if (endpoint.endsWith("/")) {
+        endpoint = endpoint.substring(0, endpoint.length - 1);
+    }
+    if (endpoint.startsWith("/")) {
+        endpoint = endpoint.substring(1, endpoint.length);
     }
 
-    if (url.endsWith("/")) {
-        url = url.substring(0, url.length - 1);
-    }
-    if (url.startsWith("/")) {
-        url = url.substring(1, url.length);
-    }
-
-    if (url !== null && url !== undefined) {
-        return url;
+    if (endpoint !== null && endpoint !== undefined) {
+        return endpoint;
     }
     return undefined;
 }
