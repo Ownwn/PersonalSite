@@ -1,15 +1,21 @@
-import { useState } from "react";
-import { useFormStatus } from "react-dom";
+import {useState} from "react";
+import {useFormStatus} from "react-dom";
 
 export function AuthPage() {
     const [response, setResponse] = useState("");
 
     return <>
-        <p>nope, but:</p>
+        <br/>
+        <br/>
+        <div className="center">
+            <h2>Login is required!</h2>
+            <p>This page is only really used by me.</p>
+            <p> If you want to contact me, you can email me at owen @ this domain</p>
 
-        <form action={sendPassword}>
-            <PasswordForm/>
-        </form>
+            <form action={sendPassword}>
+                <PasswordForm/>
+            </form>
+        </div>
 
     </>;
 
@@ -17,8 +23,8 @@ export function AuthPage() {
         const status = useFormStatus();
         return (
             <>
-                <button type="submit">Submit me</button>
-                <input type="password" required name="password"/>
+                <button type="submit">Submit</button>
+                <input type="password" required name="password" placeholder="Password"/>
                 <p>{status.pending ? "Loading.." : response}</p>
             </>
         );
@@ -36,7 +42,7 @@ export function AuthPage() {
             body: JSON.stringify(Object.fromEntries(formData))
         });
 
-        setResponse(res.ok ? "Cookie set!" : "Fail")
+        setResponse(res.ok ? "Cookie set!" : "Fail");
 
     }
 }
