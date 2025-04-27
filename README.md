@@ -3,15 +3,17 @@
 ---
 
 A site I made to quickly access school links, along with my LLM wrapper. 
-Rewritten from Svelte to React. The auth system is pretty rudimentary but it gets the job done.
+Rewritten from Svelte to React. Some of the code is a little old as this was the project that I first learned JS with.
 
 ### Learning Experiences
 - General React state knowledge
 - Client/server sides, backend with Cloudflare Functions
+- Authentication using cookies
+- Good UX designs, with me as the tester
 
 
 ### Tricky problems
-- My cookie parsing was failing due to a check on cookies.length. This only occured on Safari, which led me down a bit of a red herring chase.
+- My cookie parsing was failing due to an extra cookie added by Cloudflare. This only occured on Safari, which led me down a bit of a red herring chase.
 - CSS scoping. In React, CSS can leak out to other pages. Solved using css modules
 
 
