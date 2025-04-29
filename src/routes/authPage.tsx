@@ -11,6 +11,9 @@ export function AuthPage() {
             <h2>Login is required!</h2>
             <p>This page is only really used by me.</p>
             <p> If you want to contact me, you can email me at owen @ this domain</p>
+            <a href="https://github.com/Ownwn">Github</a>
+            <br/>
+            <br/>
 
             <form action={sendPassword}>
                 <PasswordForm/>
