@@ -1,9 +1,10 @@
-import { FormEvent, useState } from "react";
+import {FormEvent, useEffect, useState} from "react";
 
 import styles from "./chatPage.module.css";
+import Cookies from "js-cookie";
 
 
-import { defaultPrompt, experimentalPrompt, models, prompterPrompt } from "../../assets/constants.ts";
+import {defaultPrompt, experimentalPrompt, models, prompterPrompt} from "../../assets/constants.ts";
 
 
 export function ChatPage() {
@@ -14,6 +15,15 @@ export function ChatPage() {
     const [system, setSystem] = useState(experimentalPrompt);
 
     const [promptStuff, setPromptStuff] = useState(false);
+
+    useEffect(() => {
+        const preferredSystem = Cookies.get("preferred_system");
+        if (preferredSystem === undefined) {
+            return;
+        }
+
+        setSystem(preferredSystem);
+    }, []);
 
 
     return (
@@ -170,6 +180,7 @@ export function ChatPage() {
                 <button type="button" className={styles.promptButton} onClick={experimentalSystem}>Experimental</button>
                 <button type="button" className={styles.promptButton} onClick={promptSystem}>Prompter</button>
                 <button type="button" className={styles.promptButton} onClick={usePrompt}>Use</button>
+                <button type="button" className={styles.promptButton} onClick={savePrompt}>Save</button>
             </>;
         }
 
@@ -191,6 +202,10 @@ export function ChatPage() {
     function usePrompt() {
         setQuestion(botResponse);
         resetSystem();
+    }
+
+    function savePrompt() {
+        Cookies.set("preferred_system", system);
     }
 
     async function handleSubmit(e: FormEvent) {
@@ -217,7 +232,7 @@ export function ChatPage() {
         });
 
         if (!response.ok) {
-            return "Not found..."
+            return "Not found...";
         }
         try {
             const json = await response.json();
