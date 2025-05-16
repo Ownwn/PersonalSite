@@ -205,7 +205,7 @@ export function ChatPage() {
     }
 
     function savePrompt() {
-        Cookies.set("preferred_system", system);
+        Cookies.set("preferred_system", system, { expires: 90 });
     }
 
     async function handleSubmit(e: FormEvent) {
