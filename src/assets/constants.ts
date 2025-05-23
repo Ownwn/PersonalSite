@@ -2,7 +2,7 @@ export const openAiEndpoint = "https://api.openai.com/v1/chat/completions";
 export const claudeEndpoint = "https://api.anthropic.com/v1/messages";
 
 export const models = [
-    { id: 1, cute_name: `Claude`, api_name: "claude-3-7-sonnet-latest" },
+    { id: 1, cute_name: `Claude`, api_name: "claude-sonnet-4-20250514" },
     { id: 2, cute_name: `Thinking Claude`, api_name: "claude-3-7-sonnet-latest" },
     { id: 3, cute_name: `GPT-4.1`, api_name: "gpt-4.1" }
 
