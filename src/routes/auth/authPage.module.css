@@ -1,0 +1,21 @@
+
+
+.homeBackground {
+    --hdr-gradient: linear-gradient(
+            124deg in oklab,
+            oklch(94% 0.22 58) 0%, oklch(90% 0.36 18) 111% 111%
+    );
+    --sdr-gradient: linear-gradient(124deg, #ffbf1e 0%, #ff047d 111% 111%);
+
+    background: var(--hdr-gradient);
+
+    min-height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
