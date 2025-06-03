@@ -24,7 +24,10 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
 
 function checkPassword(json: object, context: EventContext<any, any, any>) {
     const password = json["password"];
-    return password && password === context.env.USER_PASSWORD;
+    if (!password) {
+        return false;
+    }
+    return password === context.env.USER_PASSWORD || password === context.env.TEMP_PASSWORD;
 }
 
 function sleep(time: number) {
