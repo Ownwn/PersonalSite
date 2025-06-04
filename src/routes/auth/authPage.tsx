@@ -9,11 +9,15 @@ export function AuthPage() {
     return <div className={styles.homeBackground}>
         <br/>
         <br/>
-        <div className="center">
-            <h2>Login is required!</h2>
-            <p>This page is only really used by me.</p>
-            <p> If you want to contact me, you can email me at owen @ this domain</p>
-            <a href="https://github.com/Ownwn">Github</a>
+        <div className={styles.cent}>
+            <div className={styles.innerHeader}>
+                <h1 className={styles.header}>Login is required!</h1>
+                <p>This page is only really used by me.</p>
+                <p> If you want to contact me, you can email me at owen @ this domain</p>
+                <a className={styles.github} href="https://github.com/Ownwn">My Github</a>
+            </div>
+
+            <br/>
             <br/>
             <br/>
 
@@ -46,7 +50,7 @@ export function AuthPage() {
             body: JSON.stringify(Object.fromEntries(formData))
         });
 
-        setResponse(res.ok ? "Cookie set!" : "Fail");
+        setResponse(res.ok ? "Success!" : "Authentication failed.");
 
     }
 }
@@ -56,12 +60,21 @@ function PasswordForm({ passwordType, togglePasswordVis, response }) {
     const status = useFormStatus();
     return (
         <>
-            <button type="submit">Submit</button>
 
-            <input type={passwordType} required name="password" placeholder="Password"/>
-            <button type="button" onClick={togglePasswordVis}>Reveal 👁️</button>
+            <div className={styles.passwordRow}>
+                <input
+                    className={styles.passwordBox}
+                    type={passwordType}
+                    required
+                    name="password"
+                    placeholder="Password"
+                />
+                <span className={styles.eye} onClick={togglePasswordVis}>👁️</span>
+            </div>
 
-            <p>{status.pending ? "Loading.." : response}</p>
+            <button className={styles.button + " " + styles.submitButton} type="submit">Submit</button>
+
+            <p className={styles.response}>{status.pending ? "Loading.." : response}</p>
 
         </>
     );

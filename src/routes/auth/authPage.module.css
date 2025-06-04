@@ -19,3 +19,65 @@
     box-sizing: border-box;
     overflow-x: hidden;
 }
+
+.header {
+    font-size: 50px;
+}
+
+.passwordRow {
+    position: relative;
+    width: 300px;
+    margin: 0 auto;
+}
+
+.passwordBox {
+    width: 100%;
+    box-sizing: border-box;
+    height: 40px;
+    font-size: 20px;
+    border: none;
+    border-radius: 10px;
+    color: black;
+}
+
+.cent {
+    text-align: center;
+}
+
+.github {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.innerHeader {
+    font-size: 20px;
+    line-height: 14px;
+}
+
+.eye {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 20px;
+    filter: grayscale(1);
+}
+
+.submitButton {
+    width: 140px;
+    font-size: 30px;
+    height: 40px;
+    border-style: none;
+    border-radius: 10px;
+
+
+    margin-top: 10px;
+    background-color: white;
+    color: black;
+    cursor: pointer;
+}
+
+.response {
+    font-size: 40px;
+}
