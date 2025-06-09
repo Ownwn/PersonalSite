@@ -52,7 +52,8 @@
 .codeResponse {
     color: black;
     font-family: "Cascadia Code";
-    white-space: pre;
+    white-space: pre-wrap;
+    word-wrap: break-word;
     background-color: rgba(255, 255, 255, 0.22);
 }
 
