@@ -44,9 +44,24 @@
     text-align: center;
 }
 
-.github {
-    font-size: 30px;
+.githubLink {
     font-weight: bold;
+    text-decoration-thickness: 2px;
+    color: black;
+    text-decoration: underline;
+
+}
+
+.githubLinkWrapper {
+    font-size: 30px;
+    text-decoration: none;
+}
+
+.githubLinkEmoji {
+    color: transparent;
+    text-shadow: 0 0 0 black;
+    text-decoration: none;
+
 }
 
 .innerHeader {

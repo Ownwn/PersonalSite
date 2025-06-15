@@ -14,7 +14,12 @@ export function AuthPage() {
                 <h1 className={styles.header}>Login is required!</h1>
                 <p>This page is only really used by me.</p>
                 <p> If you want to contact me, you can email me at owen @ this domain</p>
-                <a className={styles.github} href="https://github.com/Ownwn">My Github</a>
+
+                <br/>
+                <a className={styles.githubLinkWrapper} href="https://github.com/Ownwn">
+                    <span className={styles.githubLink}>My Github</span>
+                    <span className={styles.githubLinkEmoji}> 🔗</span>
+                </a>
             </div>
 
             <br/>
