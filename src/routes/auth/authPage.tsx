@@ -4,7 +4,7 @@ import styles from "./authPage.module.css";
 
 export function AuthPage() {
     const [response, setResponse] = useState("");
-    const [passwordVisibility, setPasswordVisibility] = useState("text");
+    const [passwordVisibility, setPasswordVisibility] = useState("password");
 
     return <div className={styles.homeBackground}>
         <br/>
