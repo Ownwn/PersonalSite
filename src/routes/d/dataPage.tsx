@@ -27,6 +27,7 @@ export function DataPage() {
             .catch(err => console.log(err));
     }
 
+    // @ts-ignore
     async function postItem(formData) {
         if (!formData) {
             return;
@@ -50,6 +51,7 @@ export function DataPage() {
 
 }
 
+// @ts-ignore
 function InputForm({postItem}) {
     return <form action={postItem}>
         <button type="submit">Submit</button>
