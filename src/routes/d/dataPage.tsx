@@ -2,11 +2,12 @@ import {useEffect, useState} from "react";
 import styles from "./dataPage.module.css";
 
 export function DataPage() {
-    let [items, setItems] = useState([]);
+    let [items, setItems] = useState([[]]);
     let [response, setResponse] = useState("");
 
     useEffect(() => {
         fetchItems();
+
     }, []);
 
 
@@ -15,14 +16,15 @@ export function DataPage() {
         <h2>{response}</h2>
         <br/>
         <ol>
-            {items.map((item, index) => (<li key={index}>{item}</li>))}
+            {items.map((item, index) => (<li key={index}>{item[1]}</li>))}
         </ol>
     </div>;
 
 
     function fetchItems() {
-        fetch("http://127.0.0.1:8787/getdata")
+        fetch("/getdata")
             .then(res => res.json())
+            .then(data => data.sort((a: { name: number; }[], b: { name: number; }[]) => b[0].name - a[0].name))
             .then(data => setItems(data))
             .catch(err => console.log(err));
     }
@@ -37,7 +39,7 @@ export function DataPage() {
             return;
         }
 
-        const postResponse = await fetch("http://127.0.0.1:8787/postdata", {
+        const postResponse = await fetch("/postdata", {
             method: "POST",
             body: text
         });
@@ -46,9 +48,9 @@ export function DataPage() {
             return;
         }
 
-        setResponse(await postResponse.text());
+        setResponse("Data posted!");
+        fetchItems();
     }
-
 }
 
 // @ts-ignore
