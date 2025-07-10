@@ -16,9 +16,18 @@ export function DataPage() {
         <h2>{response}</h2>
         <br/>
         <ol>
-            {items.map((item, index) => (<li key={index}>{item[1]}</li>))}
+                {items.map((item, index) => (
+                    <li className={styles.dataItem} key={index}>
+                        {item[1]}
+                        <button onClick={() => copyToClipboard(item[1])} className={styles.dataButton}>Copy</button>
+                    </li>
+                ))}
         </ol>
     </div>;
+
+    async function copyToClipboard(text: string) {
+        await navigator.clipboard.writeText(text)
+    }
 
 
     function fetchItems() {

@@ -22,6 +22,35 @@
     text-align: center;
 }
 
+.dataItem {
+    font-size: 50px;
+    list-style: none;
+    background-color: rgba(255, 0, 0, 0.32);
+    border-radius: 15px;
+    margin: 20px;
+    position: relative;
+
+}
+
+.dataButton {
+    position: absolute;
+    top: 50%;
+    left: 60%;
+    transform: translate(-50%, -50%);
+    height: 50px;
+    width: 100px;
+    font-size: 24px;
+    border: none;
+    border-radius: 8px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    cursor: pointer;
+    opacity: 0.2;
+}
+
+.dataButton:hover {
+    opacity: 1;
+}
 form {
     padding-top: 20px;
 }
@@ -30,6 +59,7 @@ textarea {
     width: 300px;
     height: 50px;
     margin: 5px;
+    position: relative;
 }
 
 button {
