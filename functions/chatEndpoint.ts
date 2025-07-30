@@ -1,5 +1,5 @@
 import { claudeEndpoint, models, openAiEndpoint } from "../src/assets/constants";
-
+import Anthropic from '@anthropic-ai/sdk';
 
 export async function onRequestPost(context: EventContext<any, any, any>) {
     const error = genErrorResponse("Error: Invalid Question", 400);
@@ -67,6 +67,31 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
             "Content-Type": "application/json",
             "Authorization": context.env.OPENAI_KEY
         };
+    }
+
+    if (isStandardClaude || isThinkingClaude) {
+        const client = new Anthropic({
+            apiKey: context.env.CLAUDE_KEY
+        });
+
+        const message = await client.messages.create({
+            max_tokens: 4096,
+            messages: [{ role: 'user', content: 'Hello, Claude' }],
+            model: models[userData.model_id - 1].api_name,
+            system: userData.system_prompt,
+            stream: true
+        });
+        for await (const messageStreamEvent of message) {
+            console.log(messageStreamEvent.type);
+        }
+        console.log("done!")
+
+        // @ts-ignore
+        const goodJson = { answer: message.content[0].text }
+        return new Response(JSON.stringify(goodJson), {
+            headers: { "Content-Type": "application/json" }
+        });
+
     }
 
     const endpoint = isStandardClaude || isThinkingClaude ? claudeEndpoint : openAiEndpoint;
