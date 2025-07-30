@@ -11,7 +11,7 @@ export function ChatPage() {
 
     const [botResponse, setBotResponse] = useState("");
     const [question, setQuestion] = useState("");
-    const [model, setModel] = useState(String(models[0].id));
+    const [model, setModel] = useState(String(0));
     const [system, setSystem] = useState(experimentalPrompt);
 
     const [promptStuff, setPromptStuff] = useState(false);
@@ -73,8 +73,8 @@ export function ChatPage() {
     function ModelSelector() {
         return <>
             <select value={model} name="model" onChange={e => setModel(e.target.value)}>
-                {models.map(m => (
-                    <option value={m.id} key={m.id}>{m.cute_name}</option>
+                {models.map((m, index) => (
+                    <option value={index} key={index}>{m.cute_name}</option>
                 ))}
 
             </select>
