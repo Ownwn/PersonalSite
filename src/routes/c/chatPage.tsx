@@ -210,8 +210,8 @@ export function ChatPage() {
 
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
-        setBotResponse("Loading..");
-        setBotResponse(await submitPrompt());
+        setBotResponse("");
+        await submitPrompt()
     }
 
 
@@ -231,18 +231,41 @@ export function ChatPage() {
             body: JSON.stringify(request)
         });
 
-        if (!response.ok) {
+        if (!response.body || !response.ok) {
             return "Not found...";
         }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+
+
         try {
-            const json = await response.json();
-            const answer: string = json.answer;
-            console.log("\n\n" + answer + "\n\n");
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
 
-            return answer;
-        } catch (e) {
-            return "Error parsing response!";
+                const chunk = decoder.decode(value, { stream: true });
+                const lines = chunk.split('\n');
+
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        const data = line.slice(6);
+                        if (data === '[DONE]') {
+                            return;
+                        }
+
+                        try {
+                            const parsed = JSON.parse(data);
+                            if (parsed) {
+                                setBotResponse(prev => prev + parsed);
+                            }
+                        } catch (ignored) {
+                        }
+                    }
+                }
+            }
+        } finally {
+            reader.releaseLock();
         }
-
     }
 }

@@ -19,26 +19,18 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
         return error;
     }
 
-    const modelId = userData.model_id
+    const modelId = Number(userData.model_id)
     if (modelId === undefined || modelId < 0 || modelId >= models.length) {
         return error
     }
 
-    const isClaude = modelId == 1;
+    const isClaude = modelId === 0; // fucky
 
     if (isClaude) {
-        await streamClaudeMessage(context, modelId, userData.system_prompt)
+        return streamClaudeMessage(context, modelId, userData.system_prompt, userData.question)
     } else {
-        await streamOpenAiMessage(context, modelId, userData.system_prompt)
+        return streamOpenAiMessage(context, modelId, userData.system_prompt, userData.question)
     }
-
-
-    const goodJson = { answer: "NYI" };
-
-    return new Response(JSON.stringify(goodJson), {
-        headers: { "Content-Type": "application/json" }
-    });
-
 }
 
 function genErrorResponse(message: string, statusCode: number) {
@@ -48,41 +40,54 @@ function genErrorResponse(message: string, statusCode: number) {
     });
 }
 
-async function streamClaudeMessage(context, modelId, systemPrompt) {
+async function streamClaudeMessage(context, modelId: number, systemPrompt: string, userPrompt: string) {
     const client = new Anthropic({
         apiKey: context.env.CLAUDE_KEY
     });
 
-    const message = await client.messages.create({
-        max_tokens: 8192,
-        messages: [{ role: 'user', content: 'Hello, Claude' }],
-        model: models[modelId].api_name,
-        system: systemPrompt,
-        stream: true
+    client.messages.stream({
+        messages: [{role: 'user', content: "Hello"}],
+        model: 'claude-3-5-haiku-latest',
+        max_tokens: 1024,
+    }).on('text', (text) => {
+        console.log(text);
     });
-    for await (const messageStreamEvent of message) {
-        console.log(messageStreamEvent.type);
-    }
-    console.log("done!")
+    return new Response("nyi")
 }
 
-async function streamOpenAiMessage(context, modelId, systemPrompt) {
-
+async function streamOpenAiMessage(context, modelId: number, systemPrompt: string, userPrompt: string) {
     const client = new OpenAI({
         apiKey: context.env.OPENAI_KEY
     });
 
-    const response = await client.responses.create({
-        model: 'gpt-4.1-nano',
-        max_output_tokens: 8192,
-        instructions: 'You are a coding assistant that talks like a pirate',
-        input: 'Are semicolons optional in JavaScript?',
-        stream: true
+    const stream = new ReadableStream({
+        async start(controller) {
+            const encoder = new TextEncoder();
+            try {
+                const response = await client.responses.create({
+                    model: models[modelId].api_name,
+                    max_output_tokens: 8192,
+                    instructions: systemPrompt,
+                    input: userPrompt,
+                    stream: true
+                });
+
+                for await (const event of response) {
+                    if (event.delta) {
+                        console.log(event.delta)
+                        const data = `data: ${JSON.stringify(event.delta)}\n\n`;
+                        controller.enqueue(encoder.encode(data));
+                    }
+                }
+
+            } catch (error) {
+                controller.error(error);
+            }
+            controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+            controller.close();
+        }
     });
-
-    for await (const event of response) {
-        if (event.delta) console.log(event.delta)
-
-    }
-    console.log(":done")
+    return new Response(stream, {
+        headers: { "Content-Type": "text/event-stream"}
+    });
 }
