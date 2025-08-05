@@ -232,11 +232,13 @@ export function ChatPage() {
         });
 
         if (!response.body || !response.ok) {
-            return "Not found...";
+            setBotResponse("Failed " + String(response.status))
+            return
         }
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
+        let buffer = '';
 
 
         try {
@@ -245,7 +247,9 @@ export function ChatPage() {
                 if (done) break;
 
                 const chunk = decoder.decode(value, { stream: true });
-                const lines = chunk.split('\n');
+                buffer += chunk;
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || '';
 
                 for (const line of lines) {
                     if (line.startsWith('data: ')) {
@@ -261,6 +265,22 @@ export function ChatPage() {
                             }
                         } catch (ignored) {
                         }
+                    } else if (line.trim() !== '') {
+                        console.log("Unexpected line:", line);
+                    }
+                }
+            }
+
+            if (buffer.trim() && buffer.startsWith('data: ')) {
+                const data = buffer.slice(6);
+                if (data !== '[DONE]') {
+                    try {
+                        const parsed = JSON.parse(data);
+                        if (parsed) {
+                            setBotResponse(prev => prev + parsed);
+                        }
+                    } catch (ignored) {
+                        console.log("Error parsing buffer", data);
                     }
                 }
             }
