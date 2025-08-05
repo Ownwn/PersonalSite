@@ -11,7 +11,7 @@ export function ChatPage() {
 
     const [botResponse, setBotResponse] = useState("");
     const [question, setQuestion] = useState("");
-    const [model, setModel] = useState(String(models[0].id));
+    const [model, setModel] = useState(String(0));
     const [system, setSystem] = useState(experimentalPrompt);
 
     const [promptStuff, setPromptStuff] = useState(false);
@@ -73,8 +73,8 @@ export function ChatPage() {
     function ModelSelector() {
         return <>
             <select value={model} name="model" onChange={e => setModel(e.target.value)}>
-                {models.map(m => (
-                    <option value={m.id} key={m.id}>{m.cute_name}</option>
+                {models.map((m, index) => (
+                    <option value={index} key={index}>{m.cute_name}</option>
                 ))}
 
             </select>
@@ -210,13 +210,12 @@ export function ChatPage() {
 
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
-        setBotResponse("Loading..");
-        setBotResponse(await submitPrompt());
+        setBotResponse("Loading...");
+        await submitPrompt()
     }
 
 
     async function submitPrompt() {
-
         const request = {
             question: question,
             model_id: model,
@@ -231,18 +230,63 @@ export function ChatPage() {
             body: JSON.stringify(request)
         });
 
-        if (!response.ok) {
-            return "Not found...";
+        if (!response.body || !response.ok) {
+            setBotResponse("Failed " + String(response.status))
+            return
         }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        setBotResponse("")
+
+
         try {
-            const json = await response.json();
-            const answer: string = json.answer;
-            console.log("\n\n" + answer + "\n\n");
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
 
-            return answer;
-        } catch (e) {
-            return "Error parsing response!";
+                const chunk = decoder.decode(value, { stream: true });
+                buffer += chunk;
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || '';
+
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        const data = line.slice(6);
+                        if (data === '[DONE]') {
+                            return;
+                        }
+
+                        try {
+                            const parsed = JSON.parse(data);
+                            if (parsed) {
+                                setBotResponse(prev => prev + parsed);
+                            }
+                        } catch (ignored) {
+                        }
+                    } else if (line.trim() !== '') {
+                        console.log("Unexpected line:", line);
+                    }
+                }
+            }
+
+            if (buffer.trim() && buffer.startsWith('data: ')) {
+                const data = buffer.slice(6);
+                if (data !== '[DONE]') {
+                    try {
+                        const parsed = JSON.parse(data);
+                        if (parsed) {
+                            setBotResponse(prev => prev + parsed);
+                        }
+                    } catch (ignored) {
+                        console.log("Error parsing buffer", data);
+                    }
+                }
+            }
+        } finally {
+            reader.releaseLock();
         }
-
     }
 }

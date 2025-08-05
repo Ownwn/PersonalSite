@@ -1,5 +1,6 @@
-import { claudeEndpoint, models, openAiEndpoint } from "../src/assets/constants";
-
+import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
+import {models, Provider} from "../src/assets/constants";
 
 export async function onRequestPost(context: EventContext<any, any, any>) {
     const error = genErrorResponse("Error: Invalid Question", 400);
@@ -14,95 +15,79 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
     }
 
 
-    if (!userData.question || !userData.model_id) {
+
+    if (!userData.question || userData.system_prompt === undefined) {
         return error;
     }
 
-
-    const messages = [
-        { role: "user", content: userData.question }
-    ];
-
-    if (userData.model_id < 1 || userData.model_id > models.length) {
-        return error;
+    const modelId = Number(userData.model_id)
+    if (modelId === undefined || Number.isNaN(modelId) || modelId < 0 || modelId >= models.length) {
+        return error
     }
 
+    const provider = models[modelId].provider
 
-    const isStandardClaude = userData.model_id == 1;
-    const isThinkingClaude = userData.model_id == 2;
-
-
-    const requestBody: any = {
-        model: models[userData.model_id - 1].api_name,
-        messages: messages
-    };
-
-
-    let headers;
-    if (isStandardClaude || isThinkingClaude) {
-
-
-        if (isThinkingClaude) {
-
-            requestBody.max_tokens = 24000;
-
-            requestBody.thinking = {
-                type: "enabled",
-                budget_tokens: 16000
-            };
-        } else {
-            requestBody.max_tokens = 4096;
-            requestBody.system = userData.system_prompt;
-        }
-
-        headers = {
-            "Content-Type": "application/json",
-            "anthropic-version": "2023-06-01",
-            "x-api-key": context.env.CLAUDE_KEY
-        };
-    } else {
-        requestBody.messages.push({ role: "system", content: userData.system_prompt });
-
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": context.env.OPENAI_KEY
-        };
-    }
-
-    const endpoint = isStandardClaude || isThinkingClaude ? claudeEndpoint : openAiEndpoint;
-
-    const response = await fetch(endpoint, {
-        method: "POST",
-        headers: headers,
-        body: JSON.stringify(requestBody)
-    });
-
-
-    if (!response.ok) {
-        return genErrorResponse("Error interacting with OpenAI API.", response.status);
-    }
-
-    const json: any = await response.json();
-
-    const goodJson = { answer: "" };
-
-    if (isStandardClaude) {
-        goodJson.answer = json.content[0].text;
-    } else if (isThinkingClaude) {
-        goodJson.answer = json.content[0].thinking + "**\n\n--- END REASONING BLOCK ---\n\n**" + json.content[1].text;
-    } else {
-        goodJson.answer = json.choices[0].message.content;
-    }
-
-    return new Response(JSON.stringify(goodJson), {
-        headers: { "Content-Type": "application/json" }
-    });
-
-
-    function genErrorResponse(message: string, statusCode: number) {
-        return new Response(JSON.stringify({ message: message }), {
-            headers: { "Content-Type": "application/json" },
-            status: statusCode
+    if (provider === Provider.ANTHROPIC) {
+        const client = new Anthropic({
+            apiKey: context.env.CLAUDE_KEY
         });
+        return stream(client.messages.stream({
+            messages: [{role: 'user', content: userData.question}],
+            model: "claude-3-5-haiku-latest",
+            max_tokens: 8096,
+            system: userData.system_prompt
+        }), provider)
+        
+    } else if (provider === Provider.OPENAI){
+        const client = new OpenAI({
+            apiKey: context.env.OPENAI_KEY
+        });
+
+        return stream(await client.responses.create({
+            model: models[modelId].api_name,
+            max_output_tokens: 8192,
+            instructions: userData.system_prompt,
+            input: userData.question,
+            stream: true
+        }), provider)
     }
+    
+    return genErrorResponse("Bad Provider", 400)
+}
+
+function genErrorResponse(message: string, statusCode: number) {
+    return new Response(JSON.stringify({ message: message }), {
+        headers: { "Content-Type": "application/json" },
+        status: statusCode
+    });
+}
+
+
+
+async function stream(messageStream, provider: Provider) {
+    const stream = new ReadableStream({
+        async start(controller) {
+            const encoder = new TextEncoder();
+            try {
+                for await (const chunk of messageStream) {
+                    if (provider === Provider.ANTHROPIC && chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
+                        const data = `data: ${JSON.stringify(chunk.delta.text)}\n\n`;
+                        controller.enqueue(encoder.encode(data));
+
+                    } else if (provider === Provider.OPENAI && chunk.delta) {
+                        const data = `data: ${JSON.stringify(chunk.delta)}\n\n`;
+                        controller.enqueue(encoder.encode(data));
+                    }
+                }
+
+            } catch (error) {
+                controller.error(error);
+            }
+            controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+            controller.close();
+        }
+    });
+    return new Response(stream, {
+        headers: { "Content-Type": "text/event-stream"}
+    });
 }
