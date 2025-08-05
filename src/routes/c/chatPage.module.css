@@ -1,9 +1,9 @@
 .chatBackground {
     --hdr-gradient: linear-gradient(
-            to right in oklab,
-            oklch(79% 0.3 40) 0%, oklch(93% 0.42 94) 114% 114%
+            121deg in oklab,
+            oklch(100% 0.4 20) 0%, oklch(90% 0.18 62) 100%
     );
-    --sdr-gradient: linear-gradient(to right, #ff4c00 0%, #ffce00 114% 114%);
+    --sdr-gradient: linear-gradient(121deg, #ff0e83 0%, #ffbf4b 100%);
 
     background: var(--hdr-gradient);
 
@@ -81,6 +81,22 @@
     height: 170px;
     font-size: 16px;
     font-family: Georgia, serif;
+    background-color: rgba(255, 255, 255, 0.6);
+    border: none;
+    color: oklch(15% 0.01 270);
+    border-radius: 5px;
+}
+
+select {
+    background-color: rgba(86, 86, 86, 0.3);
+    border: none;
+    border-radius: 5px;
+    width: 80px;
+    height: 30px;
+
+}
+select:hover {
+    background-color: rgba(255, 255, 255, 0.6);
 }
 
 .system {
@@ -89,9 +105,10 @@
     font-size: 16px;
     font-family: Georgia, serif;
 
-    background-color: #e0e0e0;
+    background-color: rgba(255, 255, 255, 0.6);
     border-radius: 5px;
     border: none;
+    color: oklch(15% 0.01 270)
 }
 
 .promptButton {
