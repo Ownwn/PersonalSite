@@ -33,7 +33,7 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
         });
         return stream(client.messages.stream({
             messages: [{role: 'user', content: userData.question}],
-            model: "claude-3-5-haiku-latest",
+            model: models[modelId].api_name,
             max_tokens: 8096,
             system: userData.system_prompt
         }), provider)
