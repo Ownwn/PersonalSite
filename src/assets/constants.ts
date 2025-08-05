@@ -1,10 +1,11 @@
-export const openAiEndpoint = "https://api.openai.com/v1/chat/completions";
-export const claudeEndpoint = "https://api.anthropic.com/v1/messages";
+export enum Provider {
+    ANTHROPIC, OPENAI
+}
 
 export const models = [
-    { cute_name: `Claude`, api_name: "claude-sonnet-4-20250514" },
-    { cute_name: `GPT-4.1`, api_name: "gpt-4.1" },
-    { cute_name: `GPT Mini`, api_name: "gpt-4.1-mini" }
+    { cute_name: `Claude`, api_name: "claude-sonnet-4-20250514", provider: Provider.ANTHROPIC},
+    { cute_name: `GPT-4.1`, api_name: "gpt-4.1", provider: Provider.OPENAI },
+    { cute_name: `GPT Mini`, api_name: "gpt-4.1-mini", provider: Provider.OPENAI }
 
 ];
 
