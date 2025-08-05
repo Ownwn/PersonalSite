@@ -210,13 +210,12 @@ export function ChatPage() {
 
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
-        setBotResponse("");
+        setBotResponse("Loading...");
         await submitPrompt()
     }
 
 
     async function submitPrompt() {
-
         const request = {
             question: question,
             model_id: model,
@@ -239,6 +238,8 @@ export function ChatPage() {
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let buffer = '';
+
+        setBotResponse("")
 
 
         try {
