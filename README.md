@@ -1,9 +1,10 @@
 # Personal Site
 
----
 
-A site I made to quickly access school links, along with my LLM wrapper. 
-Rewritten from Svelte to React. Some of the code is a little old as this was the project that I first learned JS with.
+A site I made to quickly access school links, along with my LLM chatbot. Rewritten from Svelte to React.
+
+I'm currently working on implementing streaming, so that I can see LLM responses in real-time as they arrive in chunks. I'm doing this using the JS Streams API.
+
 
 ### Learning Experiences
 - General React state knowledge
@@ -18,4 +19,4 @@ Rewritten from Svelte to React. Some of the code is a little old as this was the
 
 
 **Chat page:**
-![image](https://github.com/user-attachments/assets/549f732d-abf8-44ea-a179-178022b4f5f5)
+<img width="1759" height="937" alt="image" src="https://github.com/user-attachments/assets/f0de8310-4e2d-4708-bf67-9a6374fafea7" />
