@@ -1,5 +1,5 @@
 import styles from "./homePage.module.css";
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 
 import email from "../../assets/images/email.svg";
 import hammer from "../../assets/images/hammer.svg";

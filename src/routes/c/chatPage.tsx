@@ -205,13 +205,13 @@ export function ChatPage() {
     }
 
     function savePrompt() {
-        Cookies.set("preferred_system", system, { expires: 90 });
+        Cookies.set("preferred_system", system, {expires: 90});
     }
 
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
         setBotResponse("Loading...");
-        await submitPrompt()
+        await submitPrompt();
     }
 
 
@@ -231,23 +231,26 @@ export function ChatPage() {
         });
 
         if (!response.body || !response.ok) {
-            setBotResponse("Failed " + String(response.status))
-            return
+            setBotResponse("Failed " + String(response.status));
+            return;
         }
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
-        let buffer = '';
+        let buffer = "";
+        let res = "";
 
-        setBotResponse("")
+        setBotResponse("");
 
 
         try {
             while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
+                const {done, value} = await reader.read();
+                if (done) {
+                    break;
+                }
 
-                const chunk = decoder.decode(value, { stream: true });
+                const chunk = decoder.decode(value, {stream: true});
                 buffer += chunk;
                 const lines = buffer.split('\n');
                 buffer = lines.pop() || '';
@@ -263,6 +266,7 @@ export function ChatPage() {
                             const parsed = JSON.parse(data);
                             if (parsed) {
                                 setBotResponse(prev => prev + parsed);
+                                res += parsed;
                             }
                         } catch (ignored) {
                         }
@@ -279,6 +283,7 @@ export function ChatPage() {
                         const parsed = JSON.parse(data);
                         if (parsed) {
                             setBotResponse(prev => prev + parsed);
+                            res += parsed;
                         }
                     } catch (ignored) {
                         console.log("Error parsing buffer", data);
@@ -287,6 +292,8 @@ export function ChatPage() {
             }
         } finally {
             reader.releaseLock();
+            console.log(res);
+            console.log("\n\n\n");
         }
     }
 }

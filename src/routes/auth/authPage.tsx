@@ -61,7 +61,7 @@ export function AuthPage() {
 }
 
 // @ts-ignore
-function PasswordForm({ passwordType, togglePasswordVis, response }) {
+function PasswordForm({passwordType, togglePasswordVis, response}) {
     const status = useFormStatus();
     return (
         <>

@@ -5,10 +5,10 @@ export async function onRequestGet(context: EventContext<any, any, any>) {
     }
 
     const items = await Promise.all(
-        keys.keys.map(async (key) => [ key, await context.env.PERSONAL_DATA_KV.get(key.name)])
+        keys.keys.map(async (key) => [key, await context.env.PERSONAL_DATA_KV.get(key.name)])
     );
 
-    console.log(JSON.stringify(items))
+    console.log(JSON.stringify(items));
 
     return new Response(JSON.stringify(items));
 }
