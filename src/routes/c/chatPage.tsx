@@ -237,7 +237,8 @@ export function ChatPage() {
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
-        let buffer = '';
+        let buffer = "";
+        let res = ""
 
         setBotResponse("")
 
@@ -263,6 +264,7 @@ export function ChatPage() {
                             const parsed = JSON.parse(data);
                             if (parsed) {
                                 setBotResponse(prev => prev + parsed);
+                                res+= parsed
                             }
                         } catch (ignored) {
                         }
@@ -279,6 +281,7 @@ export function ChatPage() {
                         const parsed = JSON.parse(data);
                         if (parsed) {
                             setBotResponse(prev => prev + parsed);
+                            res+= parsed
                         }
                     } catch (ignored) {
                         console.log("Error parsing buffer", data);
@@ -287,6 +290,8 @@ export function ChatPage() {
             }
         } finally {
             reader.releaseLock();
+            console.log(res)
+            console.log("\n\n\n")
         }
     }
 }
