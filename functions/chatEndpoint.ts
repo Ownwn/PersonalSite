@@ -15,17 +15,16 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
     }
 
 
-
     if (!userData.question || userData.system_prompt === undefined) {
         return error;
     }
 
-    const modelId = Number(userData.model_id)
+    const modelId = Number(userData.model_id);
     if (modelId === undefined || Number.isNaN(modelId) || modelId < 0 || modelId >= models.length) {
-        return error
+        return error;
     }
 
-    const provider = models[modelId].provider
+    const provider = models[modelId].provider;
 
     if (provider === Provider.ANTHROPIC) {
         const client = new Anthropic({
@@ -36,9 +35,9 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
             model: "claude-3-5-haiku-latest",
             max_tokens: 8096,
             system: userData.system_prompt
-        }), provider)
-        
-    } else if (provider === Provider.OPENAI){
+        }), provider);
+
+    } else if (provider === Provider.OPENAI) {
         const client = new OpenAI({
             apiKey: context.env.OPENAI_KEY
         });
@@ -49,19 +48,18 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
             instructions: userData.system_prompt,
             input: userData.question,
             stream: true
-        }), provider)
+        }), provider);
     }
-    
-    return genErrorResponse("Bad Provider", 400)
+
+    return genErrorResponse("Bad Provider", 400);
 }
 
 function genErrorResponse(message: string, statusCode: number) {
-    return new Response(JSON.stringify({ message: message }), {
-        headers: { "Content-Type": "application/json" },
+    return new Response(JSON.stringify({message: message}), {
+        headers: {"Content-Type": "application/json"},
         status: statusCode
     });
 }
-
 
 
 async function stream(messageStream, provider: Provider) {
@@ -88,6 +86,6 @@ async function stream(messageStream, provider: Provider) {
         }
     });
     return new Response(stream, {
-        headers: { "Content-Type": "text/event-stream"}
+        headers: {"Content-Type": "text/event-stream"}
     });
 }

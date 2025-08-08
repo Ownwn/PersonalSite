@@ -1,6 +1,6 @@
 const assetsEndpoint = "assets/";
 
-const freeEndpoints = ["robots.txt", "auth", "checkAuth", "404", "favicon.ico"]
+const freeEndpoints = ["robots.txt", "auth", "checkAuth", "404", "favicon.ico"];
 
 export async function onRequest(context: EventContext<any, any, any>) {
     if (isFreeUrl(context) || checkCookie(context)) {
@@ -20,7 +20,7 @@ function isFreeUrl(context: EventContext<any, any, any>): boolean {
     if (url === undefined) {
         return false;
     }
-    return freeEndpoints.indexOf(url) !== -1 || url.startsWith(assetsEndpoint)
+    return freeEndpoints.indexOf(url) !== -1 || url.startsWith(assetsEndpoint);
 }
 
 function validateUrl(url: string) {
@@ -28,7 +28,7 @@ function validateUrl(url: string) {
         return undefined;
     }
 
-    let endpoint = new URL(url).pathname
+    let endpoint = new URL(url).pathname;
 
     if (endpoint.endsWith("/")) {
         endpoint = endpoint.substring(0, endpoint.length - 1);
