@@ -293,7 +293,7 @@ export function ChatPage() {
         } finally {
             reader.releaseLock();
             console.log(res);
-            console.log("\n\n\n")
+            console.log("\n\n\n");
         }
     }
 }
