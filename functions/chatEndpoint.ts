@@ -1,5 +1,3 @@
-import Anthropic from '@anthropic-ai/sdk';
-import OpenAI from 'openai';
 import {models, Provider} from "../src/assets/constants";
 
 export async function onRequestPost(context: EventContext<any, any, any>) {
@@ -26,32 +24,10 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
 
     const provider = models[modelId].provider;
 
-    if (provider === Provider.ANTHROPIC) {
-        const client = new Anthropic({
-            apiKey: context.env.CLAUDE_KEY
-        });
-        return stream(client.messages.stream({
-            messages: [{role: 'user', content: userData.question}],
-            model: models[modelId].api_name,
-            max_tokens: 8096,
-            system: userData.system_prompt
-        }), provider);
+    const messageStream = await provider.buildStream(context.env, userData.question, models[modelId].api_name, userData.system_prompt)
 
-    } else if (provider === Provider.OPENAI) {
-        const client = new OpenAI({
-            apiKey: context.env.OPENAI_KEY
-        });
+    return stream(messageStream, provider)
 
-        return stream(await client.responses.create({
-            model: models[modelId].api_name,
-            max_output_tokens: 8192,
-            instructions: userData.system_prompt,
-            input: userData.question,
-            stream: true
-        }), provider);
-    }
-
-    return genErrorResponse("Bad Provider", 400);
 }
 
 function genErrorResponse(message: string, statusCode: number) {
@@ -68,13 +44,9 @@ async function stream(messageStream, provider: Provider) {
             const encoder = new TextEncoder();
             try {
                 for await (const chunk of messageStream) {
-                    if (provider === Provider.ANTHROPIC && chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
-                        const data = `data: ${JSON.stringify(chunk.delta.text)}\n\n`;
-                        controller.enqueue(encoder.encode(data));
-
-                    } else if (provider === Provider.OPENAI && chunk.delta) {
-                        const data = `data: ${JSON.stringify(chunk.delta)}\n\n`;
-                        controller.enqueue(encoder.encode(data));
+                    const text = provider.getText(chunk)
+                    if (text != null) {
+                        controller.enqueue(encoder.encode(`data: ${JSON.stringify(text)}\n\n`));
                     }
                 }
 
