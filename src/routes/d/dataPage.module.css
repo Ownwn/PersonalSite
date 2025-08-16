@@ -68,3 +68,7 @@ button {
     height: 30px;
     font-size: 20px;
 }
+
+details[open] > summary {
+    display: none;
+}

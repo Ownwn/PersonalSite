@@ -20,15 +20,38 @@ export function DataPage() {
         <ol>
             {items.map((item: Entry, index) => (
                 <li className={styles.dataItem} key={index}>
-                    {item.content}
-                    <button onClick={() => copyToClipboard(item.content)} className={styles.dataButton}>Copy</button>
+                    {formatEntry(item.content)}
                 </li>
             ))}
         </ol>
     </div>;
 
+    function formatEntry(entry: string)  {
+        return (
+            <>
+                {entry.length >= 30 ? (
+                    <details>
+                        <summary>{entry.substring(0, 30) + "..."}</summary>
+                        <p>{entry}</p>
+                    </details>
+                ) : entry}
+                <button onClick={() => copyToClipboard(entry)} className={styles.dataButton}>Copy</button>
+
+            </>)
+    }
+
     async function copyToClipboard(text: string) {
-        await navigator.clipboard.writeText(text);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+        } else { // thanks safari for not playing nice!!
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+        }
+
     }
 
 
@@ -55,7 +78,7 @@ export function DataPage() {
             body: text
         });
         if (!postResponse.ok) {
-            setResponse("Bad response! " + postResponse.status);
+            setResponse(await postResponse.text() + postResponse.status);
             return;
         }
 
