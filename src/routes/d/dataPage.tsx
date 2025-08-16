@@ -1,8 +1,10 @@
 import {useEffect, useState} from "react";
 import styles from "./dataPage.module.css";
 
+type Entry = { content: string, created_at: number }
+
 export function DataPage() {
-    let [items, setItems] = useState([[]]);
+    let [items, setItems] = useState<Entry[]>([]);
     let [response, setResponse] = useState("");
 
     useEffect(() => {
@@ -16,10 +18,10 @@ export function DataPage() {
         <h2>{response}</h2>
         <br/>
         <ol>
-            {items.map((item, index) => (
+            {items.map((item: Entry, index) => (
                 <li className={styles.dataItem} key={index}>
-                    {item[1]}
-                    <button onClick={() => copyToClipboard(item[1])} className={styles.dataButton}>Copy</button>
+                    {item.content}
+                    <button onClick={() => copyToClipboard(item.content)} className={styles.dataButton}>Copy</button>
                 </li>
             ))}
         </ol>
@@ -33,7 +35,7 @@ export function DataPage() {
     function fetchItems() {
         fetch("/getdata")
             .then(res => res.json())
-            .then(data => data.sort((a: { name: number; }[], b: { name: number; }[]) => b[0].name - a[0].name))
+            .then(data => data.sort((a: Entry, b: Entry) => b.created_at - a.created_at))
             .then(data => setItems(data))
             .catch(err => console.log(err));
     }
@@ -57,7 +59,7 @@ export function DataPage() {
             return;
         }
 
-        setResponse("Data posted!");
+        setResponse(await postResponse.text());
         fetchItems();
     }
 }

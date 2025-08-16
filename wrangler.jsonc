@@ -5,5 +5,12 @@
             "binding": "PERSONAL_DATA_KV",
             "id": "PERSONAL_DATA_KV"
         }
+    ],
+    "d1_databases": [
+        {
+            "binding": "DB",
+            "database_name": "data-share",
+            "database_id": "e7626217-d2e4-4f94-b9a9-b3586608748a"
+        }
     ]
 }

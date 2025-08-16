@@ -4,6 +4,16 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
         return new Response("Bad Data", {status: 400});
     }
 
-    await context.env.PERSONAL_DATA_KV.put(String(Date.now()), text);
+    try {
+        await context.env.DB.prepare(
+            "INSERT INTO data (content, created_at) values (?, ?)",
+            )
+            .bind(text, Date.now())
+            .run();
+
+    } catch (error) {
+        return new Response("Error inserting into database", {status: 500});
+    }
+
     return new Response("Data submitted!");
 }
