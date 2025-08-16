@@ -6,6 +6,9 @@ import Cookies from "js-cookie";
 
 import {defaultPrompt, experimentalPrompt, models, prompterPrompt} from "../../assets/constants.ts";
 
+type History = {
+    question: string, answer: string
+}
 
 export function ChatPage() {
 
@@ -13,6 +16,9 @@ export function ChatPage() {
     const [question, setQuestion] = useState("");
     const [model, setModel] = useState(String(0));
     const [system, setSystem] = useState(experimentalPrompt);
+
+    const [historyToggle, setHistoryToggle] = useState(true);
+    const [history, setHistory] = useState<History[]>([])
 
     const [promptStuff, setPromptStuff] = useState(false);
 
@@ -37,6 +43,7 @@ export function ChatPage() {
             <div className={styles.cent}>
                 <form onSubmit={handleSubmit}>
                     <button className={styles.submitButton} type="submit">Submit</button>
+                    <HistoryButton/>
                     <br/>
                     <textarea onChange={e => setQuestion(e.target.value)} value={question} name={"question"}
                               placeholder="Question" className={styles.question} required/>
@@ -69,6 +76,15 @@ export function ChatPage() {
 
         </div>
     );
+
+    function HistoryButton() {
+        const toggle = () => setHistoryToggle(old => !old);
+        const historyString = "History is " + String(historyToggle ? "On" : "Off");
+
+        return <button className={styles.submitButton}
+                       style={{background: historyToggle ? "rgba(0, 255,0, 0.3)" : "rgba(255, 0,0, 0.3)"}} type="button"
+                       onClick={toggle}>{historyString}</button>;
+    }
 
     function ModelSelector() {
         return <>
@@ -222,6 +238,10 @@ export function ChatPage() {
             system_prompt: system
         };
 
+        if (historyToggle) {
+            request.history = history
+        }
+
         const response = await fetch("chatEndpoint", {
             method: "POST",
             headers: {
@@ -294,6 +314,10 @@ export function ChatPage() {
             reader.releaseLock();
             console.log(res);
             console.log("\n\n\n");
+
+            if (historyToggle) { // todo display the history somewhere
+                setHistory(oldHistory => oldHistory.concat({ question: question, answer: res }))
+            }
         }
     }
 }
