@@ -13,6 +13,7 @@ export function ChatPage() {
     const [question, setQuestion] = useState("");
     const [model, setModel] = useState(String(0));
     const [system, setSystem] = useState(experimentalPrompt);
+    const [legacy, setLegacy] = useState(false)
 
     const [promptStuff, setPromptStuff] = useState(false);
 
@@ -49,6 +50,10 @@ export function ChatPage() {
 
                             <button type="button" className={styles.promptButton}
                                     onClick={() => setPromptStuff(!promptStuff)}>Toggle
+                            </button>
+
+                            <button type="button" className={styles.promptButton}
+                                    onClick={() => setLegacy(old => !old)}>Legacy Mode: {legacy}
                             </button>
 
                             <PromptTools/>
@@ -222,7 +227,7 @@ export function ChatPage() {
             system_prompt: system
         };
 
-        const response = await fetch("chatEndpoint", {
+        const response = await fetch(legacy ? "legacyChat" : "chatEndpoint", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -232,6 +237,15 @@ export function ChatPage() {
 
         if (!response.body || !response.ok) {
             setBotResponse("Failed " + String(response.status));
+            return;
+        }
+
+        if (legacy) {
+            try {
+                setBotResponse(await response.json())
+            } catch (e) {
+                setBotResponse("Failed " + e)
+            }
             return;
         }
 
