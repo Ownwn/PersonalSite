@@ -53,7 +53,7 @@ export function ChatPage() {
                             </button>
 
                             <button type="button" className={styles.promptButton}
-                                    onClick={() => setLegacy(old => !old)}>Legacy Mode: {legacy}
+                                    onClick={() => setLegacy(old => !old)}>Legacy Mode: {legacy ? "On" : "Off"}
                             </button>
 
                             <PromptTools/>
