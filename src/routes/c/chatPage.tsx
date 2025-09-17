@@ -282,7 +282,8 @@ export function ChatPage() {
                                 setBotResponse(prev => prev + parsed);
                                 res += parsed;
                             }
-                        } catch (ignored) {
+                        } catch (e) {
+                            console.error("Parsing error with ", data, " Error is ", e)
                         }
                     } else if (line.trim() !== '') {
                         console.log("Unexpected line:", line);

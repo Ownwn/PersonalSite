@@ -1,3 +1,5 @@
+import bcrypt from "bcryptjs"
+
 export async function onRequestPost(context: EventContext<any, any, any>) {
     await sleep(1000 + Math.random() * 2000); // good enough
 
@@ -5,7 +7,8 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
         const request: Request = context.request;
         const requestJson: object = await request.json();
 
-        if (checkPassword(requestJson, context)) {
+        // i love javascript truthy values, Promise<Boolean> == true
+        if (await checkPassword(requestJson, context) === true) {
             return new Response(null, {
                 status: 200,
                 headers: {
@@ -22,12 +25,12 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
     });
 }
 
-function checkPassword(json: object, context: EventContext<any, any, any>) {
+async function checkPassword(json: object, context: EventContext<any, any, any>) {
     const password = json["password"];
     if (!password) {
         return false;
     }
-    return password === context.env.USER_PASSWORD || password === context.env.TEMP_PASSWORD;
+    return (await bcrypt.compare(password, context.env.USER_HASH)) || (await bcrypt.compare(password, context.env.GUEST_HASH))
 }
 
 function sleep(time: number) {
