@@ -6,6 +6,7 @@ import { ChatPage } from "./routes/c/chatPage.tsx";
 import {DataPage} from "./routes/d/dataPage.tsx";
 
 import "./app.css";
+import {Turtles} from "./routes/turtles.tsx";
 
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
                 <Route path="/auth" element={<AuthPage/>}/>
                 <Route path="/c" element={<ChatPage/>}/>
                 <Route path="/d" element={<DataPage/>}/>
+                <Route path="/instructions" element={<Turtles/>}/>
                 <Route path="*" element={<NotFound/>}/>
             </Routes>
         </BrowserRouter>
