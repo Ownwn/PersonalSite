@@ -1,6 +1,6 @@
 const assetsEndpoint = "assets/";
 
-const freeEndpoints = ["robots.txt", "auth", "checkAuth", "404", "favicon.ico", "instructions"];
+const freeEndpoints = ["robots.txt", "auth", "checkAuth", "404", "favicon.ico"];
 
 export async function onRequest(context: EventContext<any, any, any>) {
     if (isFreeUrl(context) || checkCookie(context)) {
