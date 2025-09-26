@@ -31,12 +31,16 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
             apiKey: context.env.OPENAI_KEY
         });
 
-        const message = await client.responses.create({
+        const body = {
             model: models[modelId].api_name,
             max_output_tokens: 8192,
             instructions: userData.system_prompt,
-            input: userData.question
-        });
+            input: userData.question,
+            reasoning: undefined
+        }
+        if (models[modelId].api_name === "gpt-5") body.reasoning = { effort: "high" }
+
+        const message = await client.responses.create(body);
 
         return new Response(JSON.stringify(message.output_text), {
             headers: { "Content-Type": "application/json" }
