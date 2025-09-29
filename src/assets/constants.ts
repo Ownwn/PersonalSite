@@ -44,8 +44,8 @@ export class Provider {
 }
 
 export const models = [
+    { cute_name: `Claude`, api_name: "claude-sonnet-4-5", provider: Provider.ANTHROPIC},
     { cute_name: `GPT-4`, api_name: "gpt-4.1", provider: Provider.OPENAI },
-    { cute_name: `Claude`, api_name: "claude-sonnet-4-20250514", provider: Provider.ANTHROPIC},
     { cute_name: `GPT 4 Mini`, api_name: "gpt-4.1-mini", provider: Provider.OPENAI },
     { cute_name: `GPT 5 (Legacy only)`, api_name: "gpt-5", provider: Provider.OPENAI }
 
