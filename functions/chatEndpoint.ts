@@ -51,6 +51,7 @@ async function stream(messageStream, provider: Provider) {
                 }
 
             } catch (error) {
+                console.error("Error streaming:", error);
                 controller.error(error);
             }
             controller.enqueue(encoder.encode('data: [DONE]\n\n'));
@@ -58,6 +59,11 @@ async function stream(messageStream, provider: Provider) {
         }
     });
     return new Response(stream, {
-        headers: {"Content-Type": "text/event-stream"}
+        headers: {
+            "Content-Type": "text/event-stream",
+            "Cache-Control": "no-cache, no-transform",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"
+        }
     });
 }
