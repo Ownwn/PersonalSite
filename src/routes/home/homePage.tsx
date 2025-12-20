@@ -2,11 +2,7 @@ import styles from "./homePage.module.css";
 import {useEffect, useState} from "react";
 
 import email from "../../assets/images/email.svg";
-import hammer from "../../assets/images/hammer.svg";
-import machine_learning from "../../assets/images/machine-learning.svg";
-import network from "../../assets/images/network.svg";
 import coding from "../../assets/images/coding.svg";
-import cybr from "../../assets/images/cybr.svg";
 
 
 export function HomePage() {
