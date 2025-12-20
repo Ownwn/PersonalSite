@@ -34,48 +34,15 @@ export function HomePage() {
 
             <div className={styles.imageContainer}>
                 <div className={styles.imageBox}>
-                    <a href={links[0]}><img src={network}
-                                            alt="NWEN"
-                                            className={styles.fitImage}/></a>
-                    <div className={styles.imageName}>NWEN</div>
-                </div>
-
-                <div className={styles.imageBox}>
-                    <a href={links[1]}><img
-                        src={machine_learning} alt="aiml" className={styles.fitImage}/></a>
-                    <div className={styles.imageName}>AIML</div>
-                </div>
-
-                <div className={styles.imageBox}>
-                    <a href={links[2]}><img
-                        src={hammer} alt="SWEN" className={styles.fitImage}/></a>
-                    <div className={styles.imageName}>SWEN</div>
-                </div>
-
-                <div className={styles.imageBox}>
-                    <a href={links[3]}><img
-                        src={cybr} alt="CYBR" className={styles.fitImage}/></a>
-                    <div className={styles.imageName}>CYBR</div>
-                </div>
-
-            </div>
-
-
-            <br/>
-            <br/>
-
-
-            <div className={styles.imageContainer}>
-                <div className={styles.imageBox}>
-                    <a href={links[4]}><img src={email} alt="email"
+                    <a href={links[0]}><img src={email} alt="email"
                                             className={styles.fitImage}/></a>
                     <div className={styles.imageName}>Email</div>
                 </div>
 
                 <div className={styles.imageBox}>
-                    <a href={links[5]}><img src={coding} alt="wats"
+                    <a href={links[1]}><img src={coding} alt="garfield"
                                             className={styles.fitImage}/></a>
-                    <div className={styles.imageName}>WATS</div>
+                    <div className={styles.imageName}>Garfield</div>
                 </div>
 
             </div>
