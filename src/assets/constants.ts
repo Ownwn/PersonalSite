@@ -47,7 +47,8 @@ export const models = [
     { cute_name: `GPT 5.2`, api_name: "gpt-5.2-2025-12-11", provider: Provider.OPENAI },
     { cute_name: `Claude`, api_name: "claude-sonnet-4-5", provider: Provider.ANTHROPIC},
     { cute_name: `GPT-4`, api_name: "gpt-4.1", provider: Provider.OPENAI },
-    { cute_name: `GPT 4 Mini`, api_name: "gpt-4.1-mini", provider: Provider.OPENAI }
+    { cute_name: `GPT 4 Mini`, api_name: "gpt-4.1-mini", provider: Provider.OPENAI },
+    { cute_name: `$$$ Claude`, api_name: "claude-opus-4-5-20251101", provider: Provider.ANTHROPIC }
 
 ];
 
