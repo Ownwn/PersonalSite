@@ -6,6 +6,7 @@ import Cookies from "js-cookie";
 
 import {defaultPrompt, experimentalPrompt, models, prompterPrompt} from "../../assets/constants.ts";
 
+type HistoryChunk = {question: string, response: string}
 
 export function ChatPage() {
 
@@ -15,7 +16,7 @@ export function ChatPage() {
     const [system, setSystem] = useState(experimentalPrompt);
     const [legacy, setLegacy] = useState(false)
 
-    const [history, setHistory] = useState<object[]>([])
+    const [history, setHistory] = useState<HistoryChunk[]>([])
     const [historyEnabled, setHistoryEnabled] = useState(true)
 
     const [promptStuff, setPromptStuff] = useState(false);
@@ -94,13 +95,16 @@ export function ChatPage() {
         </>;
     }
 
-    function FormattedResponse() {
+    function FormattedResponse(historyPiece: HistoryChunk) {
         const properResponse = [];
         const boldRegex = RegExp("\\*\\*([^*]+)\\*\\*");
 
         let key = 0;
         let isCodeLine = false;
-        for (let line of botResponse.split("\n")) {
+
+        properResponse.push(<div className={styles.questionHeader}>{getHeaderLine(historyPiece.question, 1, 9999)}</div>)
+
+        for (let line of historyPiece.response.split("\n")) {
 
             if (line.startsWith("```")) {
                 isCodeLine = !isCodeLine;
@@ -180,8 +184,21 @@ export function ChatPage() {
         if (!botResponse) {
             return <></>;
         }
+
+        if (history.length === 0) {
+            return <div className={styles.responseBox}>
+                {FormattedResponse({question: question, response: botResponse})}
+            </div>;
+        }
+
+        const responses = []
+
+        for (let i = 0; i < history.length; i++) {
+            responses.push(<div className={styles.response}>{FormattedResponse(history[i])}</div>)
+        }
+
         return <div className={styles.responseBox}>
-            <div className={styles.response}>{FormattedResponse()}</div>
+            {responses}
         </div>;
     }
 
