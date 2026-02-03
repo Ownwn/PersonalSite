@@ -42,16 +42,18 @@
 }
 
 .response {
-    background-color: black;
     font-size: 25px;
     font-family: Georgia, serif;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    margin: 0 auto;
+    /*-webkit-background-clip: text;*/
+    /*background-clip: text;*/
+    margin: 0px auto;
     word-wrap: break-word;
     white-space: pre-line;
     text-align: left;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    padding: 0 25px 0 25px;
+
 }
 
 .codeResponse {
@@ -66,7 +68,7 @@
     margin: 2vh 10vw 3vh;
     padding: 15px 10px;
     border-radius: 2vmax;
-    background-color: rgba(255, 255, 255, 0.5);
+
 }
 
 .cent {
@@ -79,6 +81,17 @@
     align-items: center;
     justify-content: center;
     text-align: center;
+}
+
+.hideButton {
+    width: 30px;
+    height: 30px;
+    border-radius: 5px;
+}
+
+.together {
+    display: flex;
+    flex-direction: row;
 }
 
 .question {

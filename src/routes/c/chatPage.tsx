@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 
 import {defaultPrompt, experimentalPrompt, models, prompterPrompt} from "../../assets/constants.ts";
 
-type HistoryChunk = {question: string, response: string}
+type HistoryChunk = {question: string, response: string, hidden: boolean}
 
 export function ChatPage() {
 
@@ -16,10 +16,13 @@ export function ChatPage() {
     const [system, setSystem] = useState(experimentalPrompt);
     const [legacy, setLegacy] = useState(false)
 
-    const [history, setHistory] = useState<HistoryChunk[]>([])
+    const [history, setHistory] = useState<HistoryChunk[]>([
+        // {question: "Test question", response: "Example response.\nfoo bar..", hidden: false}, {question: "Second test", response: "Another res.\nokay.\nnext", hidden: false}
+    ])
     const [historyEnabled, setHistoryEnabled] = useState(true)
 
     const [promptStuff, setPromptStuff] = useState(false);
+    const [pendingQuestion, setPendingQuestion] = useState("")
 
     useEffect(() => {
         const preferredSystem = Cookies.get("preferred_system");
@@ -95,14 +98,42 @@ export function ChatPage() {
         </>;
     }
 
-    function FormattedResponse(historyPiece: HistoryChunk) {
+    function toggleHistoryButton(index: number)  {
+        return <button type={"button"} className={styles.hideButton} onClick={() => {
+
+            setHistory(prev => prev.map(
+                (chunk, chunkIndex) => (
+                    {question: chunk.question, response: chunk.response, hidden: (index===chunkIndex ? !chunk.hidden : chunk.hidden)}
+                )))
+        }}>
+            <b style={{backgroundColor: (history[index].hidden ? "rgba(255,34,34,0.51)" : "rgba(34,34,255,0.51)")}}>{history[index].hidden ? "❌" : "✓"}</b>
+
+        </button>
+    }
+
+    // trueHistory is if the user can delete it
+    function FormattedResponse(historyIndex: number, historyPiece: HistoryChunk, trueHistory: boolean) {
         const properResponse = [];
         const boldRegex = RegExp("\\*\\*([^*]+)\\*\\*");
 
         let key = 0;
         let isCodeLine = false;
 
-        properResponse.push(<div className={styles.questionHeader}>{getHeaderLine(historyPiece.question, 1, 9999)}</div>)
+        properResponse.push(
+            <div className={styles.questionHeader}>
+                <span>
+                    <span className={styles.together}>
+                        {!trueHistory ? <></> : toggleHistoryButton(historyIndex)}
+                        {historyPiece.hidden ? <s>
+                            {getHeaderLine(historyPiece.question, 1, 9999)}
+                        </s> : <>
+                            {getHeaderLine(historyPiece.question, 1, 9999)}</>}
+                    </span>
+                </span>
+
+
+            </div>
+        )
 
         for (let line of historyPiece.response.split("\n")) {
 
@@ -137,7 +168,7 @@ export function ChatPage() {
             }
 
 
-            properResponse.push(<div>{line}</div>);
+            properResponse.push(<div>{!historyPiece.hidden ? line : <s>{line}</s>}</div>);
 
 
             key++;
@@ -181,21 +212,25 @@ export function ChatPage() {
 
 
     function ResponseBox() {
-        if (!botResponse) {
+        if (!botResponse && history.length === 0) {
             return <></>;
-        }
-
-        if (history.length === 0) {
-            return <div className={styles.responseBox}>
-                {FormattedResponse({question: question, response: botResponse})}
-            </div>;
         }
 
         const responses = []
 
+        console.log(history.length)
         for (let i = 0; i < history.length; i++) {
-            responses.push(<div className={styles.response}>{FormattedResponse(history[i])}</div>)
+            responses.push(<div className={styles.response} key={i+1}>{FormattedResponse(i, history[i], true)}</div>)
         }
+
+        if (pendingQuestion !== "" && botResponse !== "") {
+            responses.push(
+                <div className={styles.response} key={history.length+2}>
+                    {FormattedResponse(-1, {question: pendingQuestion, response: botResponse, hidden: false}, false)}
+                </div>
+            )
+        }
+
 
         return <div className={styles.responseBox}>
             {responses}
@@ -240,6 +275,7 @@ export function ChatPage() {
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
         setBotResponse("Loading...");
+        setPendingQuestion(question)
         await submitPrompt();
     }
 
@@ -253,7 +289,7 @@ export function ChatPage() {
             question: question,
             model_id: model,
             system_prompt: system,
-            history: history
+            history: history.filter(h => !h.hidden)
         };
 
         const response = await fetch(legacy ? "legacyChat" : "chatEndpoint", {
@@ -268,13 +304,15 @@ export function ChatPage() {
             setBotResponse("Failed " + String(response.status));
             return;
         }
+        const oldQuestion = question
 
         if (legacy) {
             try {
                 const legacyRes = await response.json()
-                setHistory(old => [...old, {question: question, response: legacyRes}])
+                setHistory(old => [...old, {question: oldQuestion, response: legacyRes, hidden: false}])
                 setBotResponse(legacyRes)
-                console.log("Legacy User: ", question);
+                setBotResponse("")
+                console.log("Legacy User: ", oldQuestion);
                 console.log("\n")
                 console.log("Legacy Res: ", legacyRes);
                 console.log("\n\n\n");
@@ -342,11 +380,13 @@ export function ChatPage() {
             }
         } finally {
             reader.releaseLock();
-            console.log("User: ", question);
+            console.log("User: ", oldQuestion);
             console.log("\n")
             console.log("Res: ", res);
             console.log("\n\n\n");
-            setHistory(old => [...old, {question: question, response: res}])
+            setHistory(old => [...old, {question: oldQuestion, response: res, hidden: false}])
+            setBotResponse("")
+
         }
     }
 }
