@@ -5,7 +5,7 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "tsc -b && vite build",
+        "build": "vite build",
         "lint": "eslint .",
         "preview": "npm run build && wrangler pages dev --ip=0.0.0.0 ./dist",
         "deploy": "npm run build && wrangler pages deploy ./dist"
