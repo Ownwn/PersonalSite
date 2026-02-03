@@ -7,12 +7,16 @@ export class Provider {
             return chunk.delta.text;
         }
         return null
-    }, async (env, question, model, system) => {
+    }, async (env, question, model, system, history) => {
         const client = new Anthropic({
             apiKey: env.CLAUDE_KEY
         });
+
+        const input = appendHistory(question, history)
+
+        // @ts-ignore
         return client.messages.stream({
-            messages: [{role: 'user', content: question}],
+            messages: input,
             model: model,
             max_tokens: 8096,
             system: system
@@ -25,22 +29,38 @@ export class Provider {
             return chunk.delta;
         }
         return null;
-    }, async (env, question, model, system) => {
+    }, async (env, question, model, system, history) => {
         const client = new OpenAI({
             apiKey: env.OPENAI_KEY
         });
 
+        const input = appendHistory(question, history)
+
+        // @ts-ignore
         return client.responses.create({
             model: model,
             max_output_tokens: 8192,
             instructions: system,
-            input: question,
+            input: input,
             stream: true
         });
 
     });
 
-    private constructor(public getText: (chunk: any) => string | null, public buildStream: (env: any, question: string, model: string, system: string) => Promise<any>) {}
+    private constructor(public getText: (chunk: any) => string | null, public buildStream: (env: any, question: string, model: string, system: string, history: object[]) => Promise<any>) {}
+}
+
+export function appendHistory(question, history: object[]): object[] {
+    const input = []
+    for (let i = 0; i < history.length; i++) {
+        const historyChunk = history[i]
+        // @ts-ignore
+        input.push({"role": "user", "content": historyChunk.question})
+        // @ts-ignore
+        input.push({"role": "assistant", "content": historyChunk.response})
+    }
+    input.push({"role": "user", "content": question})
+    return input
 }
 
 export const models = [

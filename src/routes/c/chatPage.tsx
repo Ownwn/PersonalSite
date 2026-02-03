@@ -15,6 +15,9 @@ export function ChatPage() {
     const [system, setSystem] = useState(experimentalPrompt);
     const [legacy, setLegacy] = useState(false)
 
+    const [history, setHistory] = useState<object[]>([])
+    const [historyEnabled, setHistoryEnabled] = useState(true)
+
     const [promptStuff, setPromptStuff] = useState(false);
 
     useEffect(() => {
@@ -53,7 +56,11 @@ export function ChatPage() {
                             </button>
 
                             <button type="button" className={styles.promptButton}
-                                    onClick={() => setLegacy(old => !old)}>Legacy Mode: {legacy ? "On" : "Off"}
+                                    onClick={() => setLegacy(old => !old)}>Legacy: {legacy ? "On" : "Off"}
+                            </button>
+
+                            <button type="button" className={styles.promptButton}
+                                    onClick={() => setHistoryEnabled(old => !old)}>History: {historyEnabled ? "On" : "Off"}
                             </button>
 
                             <PromptTools/>
@@ -221,10 +228,15 @@ export function ChatPage() {
 
 
     async function submitPrompt() {
+        if (!historyEnabled) {
+            setHistory([])
+        }
+
         const request = {
             question: question,
             model_id: model,
-            system_prompt: system
+            system_prompt: system,
+            history: history
         };
 
         const response = await fetch(legacy ? "legacyChat" : "chatEndpoint", {
@@ -242,7 +254,13 @@ export function ChatPage() {
 
         if (legacy) {
             try {
-                setBotResponse(await response.json())
+                const legacyRes = await response.json()
+                setHistory(old => [...old, {question: question, response: legacyRes}])
+                setBotResponse(legacyRes)
+                console.log("Legacy User: ", question);
+                console.log("\n")
+                console.log("Legacy Res: ", legacyRes);
+                console.log("\n\n\n");
             } catch (e) {
                 setBotResponse("Failed " + e)
             }
@@ -307,8 +325,11 @@ export function ChatPage() {
             }
         } finally {
             reader.releaseLock();
-            console.log(res);
+            console.log("User: ", question);
+            console.log("\n")
+            console.log("Res: ", res);
             console.log("\n\n\n");
+            setHistory(old => [...old, {question: question, response: res}])
         }
     }
 }

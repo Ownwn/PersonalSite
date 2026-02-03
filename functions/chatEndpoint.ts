@@ -1,4 +1,4 @@
-import {models, Provider} from "../src/assets/constants";
+import Provider, {models} from "../src/assets/constants";
 
 export async function onRequestPost(context: EventContext<any, any, any>) {
     const error = genErrorResponse("Error: Invalid Question", 400);
@@ -24,7 +24,7 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
 
     const provider = models[modelId].provider;
 
-    const messageStream = await provider.buildStream(context.env, userData.question, models[modelId].api_name, userData.system_prompt)
+    const messageStream = await provider.buildStream(context.env, userData.question, models[modelId].api_name, userData.system_prompt, userData.history)
 
     return stream(messageStream, provider)
 

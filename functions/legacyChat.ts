@@ -1,4 +1,4 @@
-import {models, Provider} from "../src/assets/constants";
+import {appendHistory, models, Provider} from "../src/assets/constants";
 import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
 
@@ -31,11 +31,13 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
             apiKey: context.env.OPENAI_KEY
         });
 
+        const input = appendHistory(userData.question, userData.history)
+
         const body = {
             model: models[modelId].api_name,
             max_output_tokens: 8192,
             instructions: userData.system_prompt,
-            input: userData.question,
+            input: input,
             reasoning: undefined
         }
         if (models[modelId].api_name === "gpt-5") body.reasoning = { effort: "high" }
@@ -51,8 +53,10 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
             apiKey: context.env.CLAUDE_KEY
         });
 
+        const input = appendHistory(userData.question, userData.history)
+
         const message = await client.messages.create({
-            messages: [{role: 'user', content: userData.question}],
+            messages: input,
             model: models[modelId].api_name,
             max_tokens: 8096,
             system: userData.system_prompt
