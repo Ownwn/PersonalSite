@@ -301,7 +301,7 @@ export function ChatPage() {
         });
 
         if (!response.body || !response.ok) {
-            setBotResponse("Failed " + String(response.status));
+            setBotResponse("Failed " + String(response.status) + " " + String(await response.text()));
             return;
         }
         const oldQuestion = question
