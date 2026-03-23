@@ -1,10 +1,11 @@
 .chatBackground {
     --hdr-gradient: linear-gradient(
-            107deg in oklab,
-            oklch(96% 0.50 160),
-            oklch(84% 0.50 91)  93%
+            122deg in oklab,
+            oklch(59% 0.48 254) 0%,
+            40%,
+            oklch(96% 0 0)      98%
     );
-    --sdr-gradient: linear-gradient(107deg, #0ff 6%, #f80000 89%);
+    --sdr-gradient: linear-gradient(122deg, #00f 0%, 40%, #f2f2f2 98%);
 
     background: var(--hdr-gradient);
 
