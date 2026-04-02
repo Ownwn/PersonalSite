@@ -3,11 +3,12 @@ import OpenAI from "openai";
 
 export class Provider {
     static ANTHROPIC = new Provider(chunk => {
-        if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
-            return chunk.delta.text;
+        console.log("got chunk, ", chunk)
+        if (chunk.type === 'content_block_delta' && (chunk.delta.type === 'text_delta' || chunk.delta.type === 'thinking_delta')) {
+            return chunk.delta.text || chunk.delta.thinking;
         }
         return null
-    }, async (env, question, model, system, history) => {
+    }, async (env, question, model, system, history, reasoning) => {
         const client = new Anthropic({
             apiKey: env.CLAUDE_KEY
         });
@@ -19,7 +20,10 @@ export class Provider {
             messages: input,
             model: model,
             max_tokens: 8096,
-            system: system
+            system: system,
+            thinking: (reasoning ? {
+                type: "adaptive"
+            } : undefined)
         })
 
     });
@@ -29,25 +33,25 @@ export class Provider {
             return chunk.delta;
         }
         return null;
-    }, async (env, question, model, system, history) => {
+    }, async (env, question, model, system, history, reasoning) => {
         const client = new OpenAI({
             apiKey: env.OPENAI_KEY
         });
 
         const input = appendHistory(question, history)
-
         // @ts-ignore
         return client.responses.create({
             model: model,
             max_output_tokens: 8192,
             instructions: system,
             input: input,
-            stream: true
+            stream: true,
+            reasoning: (reasoning ? {effort: "medium", summary: "auto"} : undefined)
         });
 
     });
 
-    private constructor(public getText: (chunk: any) => string | null, public buildStream: (env: any, question: string, model: string, system: string, history: object[]) => Promise<any>) {}
+    private constructor(public getText: (chunk: any) => string | null, public buildStream: (env: any, question: string, model: string, system: string, history: object[], reasoning: boolean | undefined) => Promise<any>) {}
 }
 
 export function appendHistory(question, history: object[]): object[] {
@@ -64,11 +68,9 @@ export function appendHistory(question, history: object[]): object[] {
 }
 
 export const models = [
-    { cute_name: `GPT 5.4`, api_name: "gpt-5.4-2026-03-05", provider: Provider.OPENAI },
-    { cute_name: `Claude`, api_name: "claude-sonnet-4-5", provider: Provider.ANTHROPIC},
-    { cute_name: `GPT-4`, api_name: "gpt-4.1", provider: Provider.OPENAI },
-    { cute_name: `GPT 4 Mini`, api_name: "gpt-4.1-mini", provider: Provider.OPENAI },
-    { cute_name: `$$$ Claude`, api_name: "claude-opus-4-6", provider: Provider.ANTHROPIC }
+    { cute_name: `GPT 5.4`, api_name: "gpt-5.4-2026-03-05", provider: Provider.OPENAI},
+    { cute_name: `GPT 4 Mini`, api_name: "gpt-4.1-mini", provider: Provider.OPENAI, reasoning: false },
+    { cute_name: `$$$ Claude`, api_name: "claude-opus-4-6", provider: Provider.ANTHROPIC}
 
 ];
 

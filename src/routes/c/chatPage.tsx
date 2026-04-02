@@ -20,6 +20,7 @@ export function ChatPage() {
         // {question: "Test question", response: "Example response.\nfoo bar..", hidden: false}, {question: "Second test", response: "Another res.\nokay.\nnext", hidden: false}
     ])
     const [historyEnabled, setHistoryEnabled] = useState(true)
+    const [reasoningEnabled, setReasoningEnabled] = useState(false)
 
     const [promptStuff, setPromptStuff] = useState(false);
     const [pendingQuestion, setPendingQuestion] = useState("")
@@ -63,10 +64,6 @@ export function ChatPage() {
                                     onClick={() => setLegacy(old => !old)}>Legacy: {legacy ? "On" : "Off"}
                             </button>
 
-                            <button type="button" className={styles.promptButton}
-                                    onClick={() => setHistoryEnabled(old => !old)}>History: {historyEnabled ? "On" : "Off"}
-                            </button>
-
                             <PromptTools/>
 
 
@@ -94,6 +91,12 @@ export function ChatPage() {
                 ))}
 
             </select>
+
+            <button type="button" className={styles.promptButton}
+                    onClick={() => setReasoningEnabled(old => !old)}>Reason: {reasoningEnabled ? "On" : "Off"}
+            </button>
+
+
 
         </>;
     }
@@ -289,7 +292,8 @@ export function ChatPage() {
             question: question,
             model_id: model,
             system_prompt: system,
-            history: history.filter(h => !h.hidden)
+            history: history.filter(h => !h.hidden),
+            reasoning: reasoningEnabled
         };
 
         const response = await fetch(legacy ? "legacyChat" : "chatEndpoint", {
