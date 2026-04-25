@@ -3,9 +3,11 @@ import OpenAI from "openai";
 
 export class Provider {
     static ANTHROPIC = new Provider(chunk => {
-        console.log("got chunk, ", chunk)
         if (chunk.type === 'content_block_delta' && (chunk.delta.type === 'text_delta' || chunk.delta.type === 'thinking_delta')) {
             return chunk.delta.text || chunk.delta.thinking;
+        }
+        if (chunk.type === 'content_block_start' && chunk.content_block && chunk.content_block.type === 'text') {
+            return "\n# End Reasoning Answer\n";
         }
         return null
     }, async (env, question, model, system, history, reasoning) => {
@@ -31,6 +33,8 @@ export class Provider {
     static OPENAI = new Provider(chunk => {
         if (chunk.delta) {
             return chunk.delta;
+        } else if (chunk.type && chunk.type.includes("reasoning_summary_text.done")) {
+            return "\n# End Reasoning Answer\n";
         }
         return null;
     }, async (env, question, model, system, history, reasoning) => {
