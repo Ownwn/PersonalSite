@@ -29,7 +29,7 @@ export function SpeechPage() {
                         audio: {
                             input: {
                                 format: {type: "audio/pcm", rate: 24000},
-                                transcription: {model: "gpt-realtime-whisper", language: "en", delay: "high"}
+                                transcription: {model: "gpt-realtime-whisper", language: "en", delay: "xhigh"}
                             }
                         }
                     }
@@ -132,7 +132,7 @@ export function SpeechPage() {
         <div className={styles.box}>
 
             <button onClick={isRecording ? stopRecording : startRecording} className={styles.button}>
-                {isRecording ? "Start" : "Stop"}
+                {isRecording ? "Stop" : "Start"}
             </button>
 
             <div style={{
