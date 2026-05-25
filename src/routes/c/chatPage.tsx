@@ -24,6 +24,7 @@ export function ChatPage() {
 
     const [promptStuff, setPromptStuff] = useState(false);
     const [pendingQuestion, setPendingQuestion] = useState("")
+    const [anthropicCache, setAnthropicCache] = useState(false)
 
     useEffect(() => {
         const preferredSystem = Cookies.get("preferred_system");
@@ -60,9 +61,7 @@ export function ChatPage() {
                                     onClick={() => setPromptStuff(!promptStuff)}>Toggle
                             </button>
 
-                            <button type="button" className={styles.promptButton}
-                                    onClick={() => setLegacy(old => !old)}>Legacy: {legacy ? "On" : "Off"}
-                            </button>
+
 
                             <PromptTools/>
 
@@ -93,7 +92,10 @@ export function ChatPage() {
             </select>
 
             <button type="button" className={styles.promptButton}
-                    onClick={() => setReasoningEnabled(old => !old)}>Reason: {reasoningEnabled ? "On" : "Off"}
+                    onClick={() => setReasoningEnabled(old => !old)}>Think: {reasoningEnabled ? "On" : "Off"}
+            </button>
+            <button type="button" className={styles.promptButton}
+                    onClick={() => setAnthropicCache(old => !old)}>Cache: {anthropicCache ? "On" : "Off"}
             </button>
 
 
@@ -248,6 +250,9 @@ export function ChatPage() {
                 <button type="button" className={styles.promptButton} onClick={promptSystem}>Prompter</button>
                 <button type="button" className={styles.promptButton} onClick={usePrompt}>Use</button>
                 <button type="button" className={styles.promptButton} onClick={savePrompt}>Save</button>
+                <button type="button" className={styles.promptButton}
+                        onClick={() => setLegacy(old => !old)}>Legacy: {legacy ? "On" : "Off"}
+                </button>
             </>;
         }
 
@@ -293,7 +298,8 @@ export function ChatPage() {
             model_id: model,
             system_prompt: system,
             history: history.filter(h => !h.hidden),
-            reasoning: reasoningEnabled
+            reasoning: reasoningEnabled,
+            cache: anthropicCache
         };
 
         const response = await fetch(legacy ? "legacyChat" : "chatEndpoint", {

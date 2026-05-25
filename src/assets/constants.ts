@@ -10,7 +10,7 @@ export class Provider {
             return "\n# End Reasoning Answer\n";
         }
         return null
-    }, async (env, question, model, system, history, reasoning) => {
+    }, async (env, question, model, system, history, reasoning, cache) => {
         const client = new Anthropic({
             apiKey: env.CLAUDE_KEY
         });
@@ -22,6 +22,7 @@ export class Provider {
             messages: input,
             model: model,
             max_tokens: 8096,
+            cache_control: (cache ? { type: "ephemeral" } : undefined),
             system: system,
             thinking: (reasoning ? {
                 type: "adaptive"
@@ -37,7 +38,7 @@ export class Provider {
             return "\n# End Reasoning Answer\n";
         }
         return null;
-    }, async (env, question, model, system, history, reasoning) => {
+    }, async (env, question, model, system, history, reasoning, cache) => {
         const client = new OpenAI({
             apiKey: env.OPENAI_KEY
         });
@@ -55,7 +56,7 @@ export class Provider {
 
     });
 
-    private constructor(public getText: (chunk: any) => string | null, public buildStream: (env: any, question: string, model: string, system: string, history: object[], reasoning: boolean | undefined) => Promise<any>) {}
+    private constructor(public getText: (chunk: any) => string | null, public buildStream: (env: any, question: string, model: string, system: string, history: object[], reasoning: boolean | undefined, cache: boolean | undefined) => Promise<any>) {}
 }
 
 export function appendHistory(question, history: object[]): object[] {
