@@ -31,6 +31,37 @@ export class Provider {
 
     });
 
+    static DEEPSEEK = new Provider(chunk => { // todo remove duplicated code
+        if (chunk.type === 'content_block_delta' && (chunk.delta.type === 'text_delta' || chunk.delta.type === 'thinking_delta')) {
+            return chunk.delta.text || chunk.delta.thinking;
+        }
+        if (chunk.type === 'content_block_start' && chunk.content_block && chunk.content_block.type === 'text') {
+            return "\n# End Reasoning Answer\n";
+        }
+        return null
+    }, async (env, question, model, system, history, reasoning, cache) => {
+        const client = new Anthropic({
+            baseURL: "https://api.deepseek.com/anthropic",
+            apiKey: env.DEEPSEEK_KEY,
+
+        });
+
+        const input = appendHistory(question, history)
+
+        // @ts-ignore
+        return client.messages.stream({
+            messages: input,
+            model: model,
+            max_tokens: 8096,
+            cache_control: (cache ? { type: "ephemeral" } : undefined),
+            system: system,
+            thinking: (reasoning ? {
+                type: "adaptive"
+            } : undefined)
+        })
+
+    });
+
     static OPENAI = new Provider(chunk => {
         if (chunk.delta) {
             return chunk.delta;
@@ -75,7 +106,8 @@ export function appendHistory(question, history: object[]): object[] {
 export const models = [
     { cute_name: `GPT 5.4`, api_name: "gpt-5.4-2026-03-05", provider: Provider.OPENAI},
     { cute_name: `GPT 4 Mini`, api_name: "gpt-4.1-mini", provider: Provider.OPENAI, reasoning: false },
-    { cute_name: `$$$ Claude`, api_name: "claude-opus-4-6", provider: Provider.ANTHROPIC}
+    { cute_name: `$$$ Claude`, api_name: "claude-opus-4-6", provider: Provider.ANTHROPIC},
+    { cute_name: `Deepseek`, api_name: "deepseek-v4-pro", provider: Provider.DEEPSEEK}
 
 ];
 
