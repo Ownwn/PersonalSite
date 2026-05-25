@@ -23,11 +23,12 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
     }
 
     const provider = models[modelId].provider;
-
-    const messageStream = await provider.buildStream(context.env, userData.question, models[modelId].api_name, userData.system_prompt, userData.history, userData.reasoning, userData.cache)
-
-    return stream(messageStream, provider)
-
+    try {
+        const messageStream = await provider.buildStream(context.env, userData.question, models[modelId].api_name, userData.system_prompt, userData.history, userData.reasoning, userData.cache)
+        return stream(messageStream, provider)
+    } catch (err) {
+        return genErrorResponse(err.message, 500)
+    }
 }
 
 function genErrorResponse(message: string, statusCode: number) {
@@ -55,6 +56,7 @@ async function stream(messageStream, provider: Provider) {
                 controller.enqueue(encoder.encode(`data: ${JSON.stringify(error.message)}\n\n`));
                 controller.enqueue(encoder.encode('data: [DONE]\n\n'));
                 controller.close();
+                return
             }
             controller.enqueue(encoder.encode('data: [DONE]\n\n'));
             controller.close();
