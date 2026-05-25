@@ -52,7 +52,9 @@ async function stream(messageStream, provider: Provider) {
 
             } catch (error) {
                 console.error("Error streaming:", error);
-                controller.error(error);
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify(error.message)}\n\n`));
+                controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+                controller.close();
             }
             controller.enqueue(encoder.encode('data: [DONE]\n\n'));
             controller.close();
