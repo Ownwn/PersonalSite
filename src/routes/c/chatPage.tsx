@@ -99,7 +99,7 @@ export function ChatPage() {
                     onClick={() => setReasoningEnabled(old => !old)}>Think: {reasoningEnabled ? "On" : "Off"}
             </button>
             <button type="button" className={styles.promptButton}
-                    onClick={() => setSaveState(old => !old)}>Save State: {saveState ? "On" : "Off"}
+                    onClick={() => setSaveState(old => !old)}>Storage: {saveState ? "On" : "Off"}
             </button>
 
 
@@ -120,6 +120,22 @@ export function ChatPage() {
         </button>
     }
 
+    function saveToCookieButton(index: number)  {
+        return <button type={"button"} className={styles.hideButton} onClick={() => {
+
+            history.forEach((chunk, chunkIndex) => {
+                if (index !== chunkIndex) return
+                console.log("saving " + chunk.question)
+
+
+            })
+
+        }}>
+            <b style={{backgroundColor: "rgba(255,34,34,0.51)"}}>{"🔒"}</b>
+
+        </button>
+    }
+
     // trueHistory is if the user can delete it
     function FormattedResponse(historyIndex: number, historyPiece: HistoryChunk, trueHistory: boolean) {
         const properResponse = [];
@@ -133,6 +149,7 @@ export function ChatPage() {
                 <span>
                     <span className={styles.together}>
                         {!trueHistory ? <></> : toggleHistoryButton(historyIndex)}
+                        {!trueHistory ? <></> : saveToCookieButton(historyIndex)}
                         {historyPiece.hidden ? <s>
                             {getHeaderLine(historyPiece.question, 1, 9999)}
                         </s> : <>

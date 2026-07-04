@@ -131,14 +131,14 @@ select:hover {
 }
 
 .promptButton {
-    width: 12vh;
+    width: 10vh;
     margin-left: 8px;
     color: black;
     background-color: rgba(86, 86, 86, 0.3);
     border-radius: 5px;
     border-width: 0;
     height: 40px;
-    font-size: 18px;
+    font-size: 16px;
 }
 
 .promptButton:hover, .submitButton:hover {
