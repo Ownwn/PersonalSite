@@ -50,7 +50,7 @@ export class Provider {
                     instructions: system,
                     max_output_tokens: 8192,
                     stream: true,
-                    ...(reasoning ? { reasoning: { effort: "medium", summary: "auto" } } : {}),
+                    ...(reasoning ? { reasoning: { effort: "high", summary: "auto" } } : {}),
                 }),
             });
 
@@ -136,9 +136,8 @@ export function appendHistory(question, history: object[]): object[] {
 }
 
 export const models = [
-    { cute_name: `GPT 5.4`, api_name: "gpt-5.4-2026-03-05", provider: Provider.ofOpenai()},
-    { cute_name: `GPT 4 Mini`, api_name: "gpt-4.1-mini", provider: Provider.ofOpenai(), reasoning: false },
-    { cute_name: `$$$ Claude`, api_name: "claude-opus-4-6", provider: Provider.ofClaude("https://api.anthropic.com/v1/messages", "CLAUDE_KEY")},
+    { cute_name: `GPTlunar`, api_name: "gpt-5.6-terra", provider: Provider.ofOpenai()},
+    { cute_name: `WALLET`, api_name: "claude-fable-5", provider: Provider.ofClaude("https://api.anthropic.com/v1/messages", "CLAUDE_KEY")},
     { cute_name: `Deepseek`, api_name: "deepseek-v4-pro", provider: Provider.ofClaude("https://api.deepseek.com/anthropic/v1/messages", "DEEPSEEK_KEY")}
 
 ];
