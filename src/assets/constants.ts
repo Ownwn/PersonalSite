@@ -137,6 +137,7 @@ export function appendHistory(question, history: object[]): object[] {
 
 export const models = [
     { cute_name: `GPTlunar`, api_name: "gpt-5.6-terra", provider: Provider.ofOpenai()},
+    { cute_name: `GPTsol`, api_name: "gpt-5.6-sol", provider: Provider.ofOpenai()},
     { cute_name: `WALLET`, api_name: "claude-fable-5", provider: Provider.ofClaude("https://api.anthropic.com/v1/messages", "CLAUDE_KEY")},
     { cute_name: `Deepseek`, api_name: "deepseek-v4-pro", provider: Provider.ofClaude("https://api.deepseek.com/anthropic/v1/messages", "DEEPSEEK_KEY")}
 
