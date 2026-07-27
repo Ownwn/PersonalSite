@@ -1,9 +1,10 @@
 .homeBackground {
     --hdr-gradient: linear-gradient(
-            90deg in oklab,
-            oklch(50% 0.5 220) 0%, oklch(95% 0.47 155) 100%
+            326deg in oklab,
+            oklch(64% 0.38 256) 0%,
+            oklch(92% 0.41 96)  100%
     );
-    --sdr-gradient: linear-gradient(90deg, #0069ff 0%, #0f0 100%);
+    --sdr-gradient: linear-gradient(326deg, #0064ff 0%, #ffd100 100%);
 
     background: var(--hdr-gradient);
 
