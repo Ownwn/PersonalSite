@@ -1,11 +1,10 @@
 .chatBackground {
     --hdr-gradient: linear-gradient(
-            122deg in oklab,
-            oklch(59% 0.48 254) 0%,
-            40%,
-            oklch(96% 0 0)      98%
+            237deg in oklab,
+            oklch(18% 0.27 58) 0%,
+            oklch(75% 0.46 94) 100%
     );
-    --sdr-gradient: linear-gradient(122deg, #00f 0%, 40%, #f2f2f2 98%);
+    --sdr-gradient: linear-gradient(237deg, #520000 0%, #f80 100%);
 
     background: var(--hdr-gradient);
 
@@ -39,7 +38,7 @@
 }
 
 .questionHeader {
-    color: #0069ff;
+    color: #ff0000;
 }
 
 .response {
@@ -62,7 +61,7 @@
     font-family: "Cascadia Code";
     white-space: pre-wrap;
     word-wrap: break-word;
-    background-color: rgba(255, 255, 255, 0.22);
+    background-color: rgb(199 199 199 / 0.76);
 }
 
 .responseBox {

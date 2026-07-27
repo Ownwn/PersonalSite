@@ -17,7 +17,11 @@ export function ChatPage() {
     const [legacy, setLegacy] = useState(false)
 
     const [history, setHistory] = useState<HistoryChunk[]>([
-        // {question: "Test question", response: "Example response.\nfoo bar..", hidden: false}, {question: "Second test", response: "Another res.\nokay.\nnext", hidden: false}
+        // {question: "Test question", response: "" +
+        //         "Example response.\n```\npublic class Main{\n     " +
+        //         "public static void main(String args[]) {\n      " +
+        //         "   System.out.println(\"foo bar\");\n     }\n}", hidden: false},
+        // {question: "Second test", response: "Another res.\nokay.\nnext", hidden: false}
     ])
     const [historyEnabled, setHistoryEnabled] = useState(true)
     const [reasoningEnabled, setReasoningEnabled] = useState(false)
