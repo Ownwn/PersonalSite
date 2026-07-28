@@ -82,7 +82,7 @@ export class Provider {
                 messages: input,
                 stream: true,
                 model: model,
-                max_tokens: 8096,
+                max_tokens: keyName === "DEEPSEEK_KEY" ? 50_000 : 8096,
                 cache_control: (cache ? { type: "ephemeral" } : undefined),
                 system: system,
                 thinking: (reasoning ? {
