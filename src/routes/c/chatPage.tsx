@@ -28,7 +28,7 @@ export function ChatPage() {
 
     const [promptStuff, setPromptStuff] = useState(false);
     const [pendingQuestion, setPendingQuestion] = useState("")
-    const [anthropicCache, setAnthropicCache] = useState(false)
+    const [saveState, setSaveState] = useState(false)
 
     useEffect(() => {
         const preferredSystem = Cookies.get("preferred_system");
@@ -99,7 +99,7 @@ export function ChatPage() {
                     onClick={() => setReasoningEnabled(old => !old)}>Think: {reasoningEnabled ? "On" : "Off"}
             </button>
             <button type="button" className={styles.promptButton}
-                    onClick={() => setAnthropicCache(old => !old)}>Cache: {anthropicCache ? "On" : "Off"}
+                    onClick={() => setSaveState(old => !old)}>Save State: {saveState ? "On" : "Off"}
             </button>
 
 
@@ -302,8 +302,7 @@ export function ChatPage() {
             model_id: model,
             system_prompt: system,
             history: history.filter(h => !h.hidden),
-            reasoning: reasoningEnabled,
-            cache: anthropicCache
+            reasoning: reasoningEnabled
         };
 
         const response = await fetch(legacy ? "legacyChat" : "chatEndpoint", {
