@@ -4,7 +4,7 @@ import styles from "./chatPage.module.css";
 import Cookies from "js-cookie";
 
 
-import {defaultPrompt, experimentalPrompt, models, prompterPrompt} from "../../assets/constants.ts";
+import {experimentalPrompt, models} from "../../assets/constants.ts";
 
 type HistoryChunk = {question: string, response: string, hidden: boolean}
 
@@ -15,6 +15,10 @@ export function ChatPage() {
     const [model, setModel] = useState(String(0));
     const [system, setSystem] = useState(experimentalPrompt);
     const [legacy, setLegacy] = useState(false)
+    const [systemShown, setSystemShown] = useState(false)
+    const [loadFromCookieSelector, setLoadFromCookieSelector] = useState("")
+
+    const [serialisedHistory, setSerialisedHistory] = useState<Record<string, HistoryChunk[]>>({})
 
     const [history, setHistory] = useState<HistoryChunk[]>([
         // {question: "Test question", response: "" +
@@ -28,7 +32,6 @@ export function ChatPage() {
 
     const [promptStuff, setPromptStuff] = useState(false);
     const [pendingQuestion, setPendingQuestion] = useState("")
-    const [anthropicCache, setAnthropicCache] = useState(false)
 
     useEffect(() => {
         const preferredSystem = Cookies.get("preferred_system");
@@ -39,11 +42,24 @@ export function ChatPage() {
         setSystem(preferredSystem);
     }, []);
 
+    useEffect(() => {
+        // this is a cursed line
+        // @ts-ignore
+        const historySaved: string = Cookies.get("history") || (Cookies.set("history", "{}", {expires: 360}) && "{}")
+        try {
+            console.log("old ser", serialisedHistory)
+            const historyObj: Record<string, HistoryChunk[]> = JSON.parse(historySaved)
+            setSerialisedHistory(historyObj)
+            console.log("new ser", historyObj)
+        } catch (e: any) {
+            setBotResponse(old => "error!!: " + e.message + " " + old)
+            console.log(e)
+        }
+    }, []);
+
 
     return (
         <div className={styles.chatBackground}>
-            <br/>
-            <br/>
             <br/>
             <br/>
             <br/>
@@ -59,65 +75,139 @@ export function ChatPage() {
                     <div className={styles.cent2}>
                         <div className={styles.checkboxGroup}>
 
-                            <ModelSelector/>
+                            <ModelSelector row={0}/>
 
+
+
+                            <PromptTools/>
                             <button type="button" className={styles.promptButton}
                                     onClick={() => setPromptStuff(!promptStuff)}>Toggle
                             </button>
 
 
-
-                            <PromptTools/>
-
-
                             <br/>
                         </div>
                     </div>
-                    <textarea onChange={e => setSystem(e.target.value)} value={system} name={"system"} rows={4}
-                              cols={50} placeholder="System" className={styles.system}/>
+
+                    {!promptStuff ? <></> :
+                        <div className={styles.cent2}>
+                            <div className={styles.checkboxGroup}>
+                                <ModelSelector row={1}/>
+                            </div>
+
+
+                        </div>
+                    }
+
+
+                    {!systemShown ? <></> : <textarea onChange={e => setSystem(e.target.value)} value={system} name={"system"} rows={4}
+                                                      cols={50} placeholder="System" className={styles.system}/>}
+
 
                 </form>
 
 
-                <br/>
                 <ResponseBox/>
             </div>
 
         </div>
     );
 
-    function ModelSelector() {
+    // @ts-ignore
+    function ModelSelector({ row }) {
+        if (row === 0) {
+            return <>
+                <select value={model} name="model" onChange={e => setModel(e.target.value)}>
+                    {models.map((m, index) => (
+                        <option value={index} key={index}>{m.cute_name}</option>
+                    ))}
+
+                </select>
+
+                <button type="button" className={styles.promptButton}
+                        onClick={() => setReasoningEnabled(old => !old)}>Think: {reasoningEnabled ? "On" : "Off"}
+                </button>
+
+
+            </>;
+        }
         return <>
-            <select value={model} name="model" onChange={e => setModel(e.target.value)}>
-                {models.map((m, index) => (
-                    <option value={index} key={index}>{m.cute_name}</option>
-                ))}
-
-            </select>
-
             <button type="button" className={styles.promptButton}
-                    onClick={() => setReasoningEnabled(old => !old)}>Think: {reasoningEnabled ? "On" : "Off"}
+                    onClick={saveChatToCookie}>Save
             </button>
+            <LoadFromCookieSelectorComponent/>
             <button type="button" className={styles.promptButton}
-                    onClick={() => setAnthropicCache(old => !old)}>Cache: {anthropicCache ? "On" : "Off"}
+                    onClick={loadChatFromCookie}>Load
             </button>
+        </>
 
 
-
-        </>;
     }
 
     function toggleHistoryButton(index: number)  {
-        return <button type={"button"} className={styles.hideButton} onClick={() => {
+        return <button type={"button"} className={styles.hideButton} style={{backgroundColor: (history[index].hidden ? "rgba(255,34,34,0.51)" : "rgba(34,34,255,0.51)")}} onClick={() => {
 
             setHistory(prev => prev.map(
                 (chunk, chunkIndex) => (
                     {question: chunk.question, response: chunk.response, hidden: (index===chunkIndex ? !chunk.hidden : chunk.hidden)}
                 )))
         }}>
-            <b style={{backgroundColor: (history[index].hidden ? "rgba(255,34,34,0.51)" : "rgba(34,34,255,0.51)")}}>{history[index].hidden ? "❌" : "✓"}</b>
+            <b>{history[index].hidden ? "❌" : "✓"}</b>
 
         </button>
+    }
+
+    function LoadFromCookieSelectorComponent() {
+        console.log(serialisedHistory)
+        console.log("RIGHT NEXT")
+        return <select value={loadFromCookieSelector} name="loadselector" onChange={e => setLoadFromCookieSelector(e.target.value)}>
+            <option value="" disabled>
+                Select chat
+            </option>
+            {Object.keys(serialisedHistory).map((conversationKey) => (
+                <option value={conversationKey} key={conversationKey}>{conversationKey.substring(0, 30)}</option>
+            ))}
+
+        </select>
+    }
+
+    function loadChatFromCookie() {
+        console.log("old history: ")
+        history.forEach((val, num) => console.log(String(num) + ": " + val.question + " " + val.response))
+        console.log(loadFromCookieSelector)
+
+        const selected = serialisedHistory[loadFromCookieSelector]
+        if (!selected) {
+            setBotResponse("cant find value from the key " + loadFromCookieSelector + ":((((.")
+            console.log("cant find value from the key " + loadFromCookieSelector + ":((((.")
+            return
+        }
+
+        setHistory(selected)
+
+
+    }
+
+    function saveChatToCookie()  {
+        if (history.length == 0) {
+            return
+        }
+
+        let oldHistory;
+        try {
+            oldHistory = JSON.parse(Cookies.get()["history"])
+        } catch (e: any) {
+            setBotResponse(old => e.message + " cant parse history " + old)
+            console.log(e)
+            console.log(Cookies.get()["history"])
+            Cookies.set("backuphistory", Cookies.get()["history"], {expires: 360})
+        }
+
+        const header = history[0].question.substring(0, 30)
+
+        oldHistory[header] = history
+
+        Cookies.set("history", JSON.stringify(oldHistory), {expires: 360})
     }
 
     // trueHistory is if the user can delete it
@@ -249,11 +339,7 @@ export function ChatPage() {
     function PromptTools() {
         if (promptStuff) {
             return <>
-                <button type="button" className={styles.promptButton} onClick={resetSystem}>Default</button>
-                <button type="button" className={styles.promptButton} onClick={experimentalSystem}>Experimental</button>
-                <button type="button" className={styles.promptButton} onClick={promptSystem}>Prompter</button>
-                <button type="button" className={styles.promptButton} onClick={usePrompt}>Use</button>
-                <button type="button" className={styles.promptButton} onClick={savePrompt}>Save</button>
+                <button type="button" className={styles.promptButton} onClick={() => setSystemShown(old => !old)}>Show Sys</button>
                 <button type="button" className={styles.promptButton}
                         onClick={() => setLegacy(old => !old)}>Legacy: {legacy ? "On" : "Off"}
                 </button>
@@ -263,26 +349,6 @@ export function ChatPage() {
         return <></>;
     }
 
-    function resetSystem() {
-        setSystem(defaultPrompt);
-    }
-
-    function experimentalSystem() {
-        setSystem(experimentalPrompt);
-    }
-
-    function promptSystem() {
-        setSystem(prompterPrompt);
-    }
-
-    function usePrompt() {
-        setQuestion(botResponse);
-        resetSystem();
-    }
-
-    function savePrompt() {
-        Cookies.set("preferred_system", system, {expires: 90});
-    }
 
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
@@ -302,8 +368,7 @@ export function ChatPage() {
             model_id: model,
             system_prompt: system,
             history: history.filter(h => !h.hidden),
-            reasoning: reasoningEnabled,
-            cache: anthropicCache
+            reasoning: reasoningEnabled
         };
 
         const response = await fetch(legacy ? "legacyChat" : "chatEndpoint", {

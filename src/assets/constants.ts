@@ -34,7 +34,7 @@ export class Provider {
                 return "\n# End Reasoning Answer\n";
             }
             return null;
-        }, async (env, question, model, system, history, reasoning, cache) => {
+        }, async (env, question, model, system, history, reasoning) => {
 
             const input = appendHistory(question, history)
 
@@ -73,7 +73,7 @@ export class Provider {
                 return "\n# End Reasoning Answer\n";
             }
             return null
-        }, async (env, question, model, system, history, reasoning, cache) => {
+        }, async (env, question, model, system, history, reasoning) => {
 
             const input = appendHistory(question, history)
 
@@ -83,7 +83,6 @@ export class Provider {
                 stream: true,
                 model: model,
                 max_tokens: keyName === "DEEPSEEK_KEY" ? 50_000 : 8096,
-                cache_control: (cache ? { type: "ephemeral" } : undefined),
                 system: system,
                 thinking: (reasoning ? {
                     type: "adaptive",
@@ -119,7 +118,7 @@ export class Provider {
 
 
 
-    private constructor(public getText: (chunk: any) => string | null, public buildStream: (env: any, question: string, model: string, system: string, history: object[], reasoning: boolean | undefined, cache: boolean | undefined) => Promise<any>) {}
+    private constructor(public getText: (chunk: any) => string | null, public buildStream: (env: any, question: string, model: string, system: string, history: object[], reasoning: boolean | undefined) => Promise<any>) {}
 }
 
 export function appendHistory(question, history: object[]): object[] {
@@ -145,10 +144,6 @@ export const models = [
 
 export const defaultPrompt = "Provide useful answers and avoid unnecessary pleasantries. Alert the user if you are " +
     "unsure/not confident of an answer";
-export const prompterPrompt = "Refine the user's input into an optimized LLM prompt. Focus on clarity, specificity, and " +
-    "relevant context to improve the AI's understanding and response quality. " +
-    "Ensure the prompt aligns with the desired goal, includes necessary details, and is well-structured for an " +
-    "effective, concise output. Do not add any other explanations, only respond with the new prompt.";
 
 export const experimentalPrompt = "The assistant should give concise responses to very simple questions, but provide thorough responses to complex and open-ended questions.\n" +
     "The assistant can discuss virtually any topic factually and objectively.\n" +
