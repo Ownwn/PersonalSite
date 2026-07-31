@@ -46,7 +46,7 @@
     font-family: Georgia, serif;
     /*-webkit-background-clip: text;*/
     /*background-clip: text;*/
-    margin: 0px auto;
+    margin: 8px auto;
     word-wrap: break-word;
     white-space: pre-line;
     text-align: left;
@@ -164,4 +164,5 @@ select:hover {
     padding: 10px;
     color: white;
     max-width: 700px;
+    margin: 2px;
 }

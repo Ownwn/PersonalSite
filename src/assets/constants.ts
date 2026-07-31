@@ -144,10 +144,6 @@ export const models = [
 
 export const defaultPrompt = "Provide useful answers and avoid unnecessary pleasantries. Alert the user if you are " +
     "unsure/not confident of an answer";
-export const prompterPrompt = "Refine the user's input into an optimized LLM prompt. Focus on clarity, specificity, and " +
-    "relevant context to improve the AI's understanding and response quality. " +
-    "Ensure the prompt aligns with the desired goal, includes necessary details, and is well-structured for an " +
-    "effective, concise output. Do not add any other explanations, only respond with the new prompt.";
 
 export const experimentalPrompt = "The assistant should give concise responses to very simple questions, but provide thorough responses to complex and open-ended questions.\n" +
     "The assistant can discuss virtually any topic factually and objectively.\n" +
