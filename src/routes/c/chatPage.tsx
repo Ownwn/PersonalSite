@@ -4,21 +4,22 @@ import styles from "./chatPage.module.css";
 import Cookies from "js-cookie";
 
 
-import {experimentalPrompt, models} from "../../assets/constants.ts";
+import {newPromptAug2026, models} from "../../assets/constants.ts";
 
 type HistoryChunk = {question: string, response: string, hidden: boolean}
+type SerialisedHistory = {id: string, title: string, created_at: number, body: string}
 
 export function ChatPage() {
 
     const [botResponse, setBotResponse] = useState("");
     const [question, setQuestion] = useState("");
     const [model, setModel] = useState(String(0));
-    const [system, setSystem] = useState(experimentalPrompt);
+    const [system, setSystem] = useState(newPromptAug2026);
     const [legacy, setLegacy] = useState(false)
     const [systemShown, setSystemShown] = useState(false)
-    const [loadFromCookieSelector, setLoadFromCookieSelector] = useState("")
+    const [loadHistorySelector, setLoadHistorySelector] = useState(-1)
 
-    const [serialisedHistory, setSerialisedHistory] = useState<Record<string, HistoryChunk[]>>({})
+    const [serialisedHistory, setSerialisedHistory] = useState<SerialisedHistory[]>([])
 
     const [history, setHistory] = useState<HistoryChunk[]>([
         // {question: "Test question", response: "" +
@@ -27,6 +28,7 @@ export function ChatPage() {
         //         "   System.out.println(\"foo bar\");\n     }\n}", hidden: false},
         // {question: "Second test", response: "Another res.\nokay.\nnext", hidden: false}
     ])
+    // @ts-ignore
     const [historyEnabled, setHistoryEnabled] = useState(true)
     const [reasoningEnabled, setReasoningEnabled] = useState(false)
 
@@ -43,18 +45,7 @@ export function ChatPage() {
     }, []);
 
     useEffect(() => {
-        // this is a cursed line
-        // @ts-ignore
-        const historySaved: string = Cookies.get("history") || (Cookies.set("history", "{}", {expires: 360}) && "{}")
-        try {
-            console.log("old ser", serialisedHistory)
-            const historyObj: Record<string, HistoryChunk[]> = JSON.parse(historySaved)
-            setSerialisedHistory(historyObj)
-            console.log("new ser", historyObj)
-        } catch (e: any) {
-            setBotResponse(old => "error!!: " + e.message + " " + old)
-            console.log(e)
-        }
+        fetchSerialisedConversations()
     }, []);
 
 
@@ -133,15 +124,31 @@ export function ChatPage() {
         }
         return <>
             <button type="button" className={styles.promptButton}
-                    onClick={saveChatToCookie}>Save
+                    onClick={saveChatToD1}>Save
             </button>
             <LoadFromCookieSelectorComponent/>
             <button type="button" className={styles.promptButton}
-                    onClick={loadChatFromCookie}>Load
+                    onClick={loadChatFromHistory}>Load
             </button>
         </>
 
 
+    }
+
+    async function fetchSerialisedConversations() {
+        try {
+            const historySaved = await fetch("savedChats")
+            if (!historySaved.ok) {
+                throw new Error("cant find history " + historySaved.statusText)
+            }
+            const json: SerialisedHistory[] = await historySaved.json()
+            const mappedChunks = json
+                .sort((h1, h2) => h2.created_at - h1.created_at)
+            setSerialisedHistory(mappedChunks)
+        } catch (e: any) {
+            setBotResponse(old => "error!!: " + e.message + " " + old)
+            console.error(e)
+        }
     }
 
     function toggleHistoryButton(index: number)  {
@@ -158,56 +165,62 @@ export function ChatPage() {
     }
 
     function LoadFromCookieSelectorComponent() {
-        console.log(serialisedHistory)
-        console.log("RIGHT NEXT")
-        return <select value={loadFromCookieSelector} name="loadselector" onChange={e => setLoadFromCookieSelector(e.target.value)}>
-            <option value="" disabled>
+        return <select value={loadHistorySelector} name="loadselector" onChange={e => setLoadHistorySelector(Number(e.target.value))}>
+            <option value={-1} disabled>
                 Select chat
             </option>
-            {Object.keys(serialisedHistory).map((conversationKey) => (
-                <option value={conversationKey} key={conversationKey}>{conversationKey.substring(0, 30)}</option>
+            {serialisedHistory.map((hist, index) => (
+                <option value={index} key={hist.id}>{hist.title.substring(0, 30)}</option>
             ))}
 
         </select>
     }
 
-    function loadChatFromCookie() {
+    function loadChatFromHistory() {
         console.log("old history: ")
         history.forEach((val, num) => console.log(String(num) + ": " + val.question + " " + val.response))
-        console.log(loadFromCookieSelector)
 
-        const selected = serialisedHistory[loadFromCookieSelector]
+        const selected = serialisedHistory[loadHistorySelector]
+
         if (!selected) {
-            setBotResponse("cant find value from the key " + loadFromCookieSelector + ":((((.")
-            console.log("cant find value from the key " + loadFromCookieSelector + ":((((.")
+            setBotResponse("cant find value from the key " + loadHistorySelector + ":((((.")
+            console.log("cant find value from the key " + loadHistorySelector + ":((((.")
             return
         }
 
-        setHistory(selected)
+        try {
+
+        setHistory(JSON.parse(selected.body))
+        } catch (e) {
+            // @ts-ignore
+            setBotResponse("error loading history " + e.message + "body is:" + selected.body)
+        }
 
 
     }
 
-    function saveChatToCookie()  {
+    async function saveChatToD1()  {
         if (history.length == 0) {
             return
         }
 
-        let oldHistory;
-        try {
-            oldHistory = JSON.parse(Cookies.get()["history"])
-        } catch (e: any) {
-            setBotResponse(old => e.message + " cant parse history " + old)
-            console.log(e)
-            console.log(Cookies.get()["history"])
-            Cookies.set("backuphistory", Cookies.get()["history"], {expires: 360})
+
+        const title = history[0].question.substring(0, 30)
+
+        let res = await fetch("savedChats", {
+            method: "POST",
+            body: JSON.stringify({
+                title: title,
+                body: history
+            })
+        })
+
+        if (!res.ok) {
+            console.error("bad res for saving chat!")
+            setBotResponse(old => "bad res for save chat " + res.statusText + old)
         }
+        fetchSerialisedConversations()
 
-        const header = history[0].question.substring(0, 30)
-
-        oldHistory[header] = history
-
-        Cookies.set("history", JSON.stringify(oldHistory), {expires: 360})
     }
 
     // trueHistory is if the user can delete it
@@ -317,7 +330,6 @@ export function ChatPage() {
 
         const responses = []
 
-        console.log(history.length)
         for (let i = 0; i < history.length; i++) {
             responses.push(<div className={styles.response} key={i+1}>{FormattedResponse(i, history[i], true)}</div>)
         }

@@ -1,9 +1,10 @@
 import {appendHistory, models, Provider} from "../src/assets/constants";
 import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
+import {genResponse} from "./404";
 
 export async function onRequestPost(context: EventContext<any, any, any>) {
-    const error = genErrorResponse("Error: Invalid Question", 400);
+    const error = genResponse("Error: Invalid Question", 400);
 
 
     let userData;
@@ -67,15 +68,9 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
         });
 
     } else {
-        return genErrorResponse("Bad provider", 500)
+        return genResponse("Bad provider", 500)
     }
 
 
 }
 
-function genErrorResponse(message: string, statusCode: number) {
-    return new Response(JSON.stringify({message: message}), {
-        headers: {"Content-Type": "application/json"},
-        status: statusCode
-    });
-}

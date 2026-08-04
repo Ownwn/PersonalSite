@@ -11,6 +11,11 @@
             "binding": "DB",
             "database_name": "data-share",
             "database_id": "e7626217-d2e4-4f94-b9a9-b3586608748a"
+        },
+        {
+            "binding": "CHATS",
+            "database_name": "personalsite-chats",
+            "database_id": "b9a18c9e-b3e1-4127-82a4-dc7a5ebef34c"
         }
     ]
 }

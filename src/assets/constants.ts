@@ -18,8 +18,7 @@ async function* fetchSSE(response: Response) {
                 if (data === "[DONE]") return;
                 try {
                     yield JSON.parse(data);
-                } catch (e) {
-                }
+                } catch (e) { /* empty */ }
             }
         }
     }
@@ -121,6 +120,7 @@ export class Provider {
     private constructor(public getText: (chunk: any) => string | null, public buildStream: (env: any, question: string, model: string, system: string, history: object[], reasoning: boolean | undefined) => Promise<any>) {}
 }
 
+// @ts-ignore
 export function appendHistory(question, history: object[]): object[] {
     const input = []
     for (let i = 0; i < history.length; i++) {
@@ -142,12 +142,4 @@ export const models = [
 
 ];
 
-export const defaultPrompt = "Provide useful answers and avoid unnecessary pleasantries. Alert the user if you are " +
-    "unsure/not confident of an answer";
-
-export const experimentalPrompt = "The assistant should give concise responses to very simple questions, but provide thorough responses to complex and open-ended questions.\n" +
-    "The assistant can discuss virtually any topic factually and objectively.\n" +
-    "\n" +
-    "The assistant is able to explain difficult concepts or ideas clearly. It can also illustrate its explanations with examples, thought experiments, or metaphors.\n" +
-    "The person’s message may contain a false statement or presupposition and t he assistant should check this if uncertain.\n" +
-    "The assistant never starts its response by saying a question or idea or observation was good, great, fascinating, profound, excellent, or any other positive adjective. It skips the flattery and responds directly."
+export const newPromptAug2026 = "Provide useful answers and avoid unnecessary pleasantries. If you encounter any strong ambiguities, ask the user for clarification";

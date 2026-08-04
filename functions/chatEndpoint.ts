@@ -1,7 +1,8 @@
 import Provider, {models} from "../src/assets/constants";
+import { genResponse } from "./404"
 
 export async function onRequestPost(context: EventContext<any, any, any>) {
-    const error = genErrorResponse("Error: Invalid Question", 400);
+    const error = genResponse("Error: Invalid Question", 400);
 
 
     let userData;
@@ -27,17 +28,9 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
         const messageStream = await provider.buildStream(context.env, userData.question, models[modelId].api_name, userData.system_prompt, userData.history, userData.reasoning)
         return stream(messageStream, provider)
     } catch (err) {
-        return genErrorResponse(err.message, 500)
+        return genResponse(err.message, 500)
     }
 }
-
-function genErrorResponse(message: string, statusCode: number) {
-    return new Response(JSON.stringify({message: message}), {
-        headers: {"Content-Type": "application/json"},
-        status: statusCode
-    });
-}
-
 
 async function stream(messageStream, provider: Provider) {
     const stream = new ReadableStream({
