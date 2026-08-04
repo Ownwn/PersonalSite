@@ -81,7 +81,7 @@ export class Provider {
                 messages: input,
                 stream: true,
                 model: model,
-                max_tokens: keyName === "DEEPSEEK_KEY" ? 50_000 : 8096,
+                max_tokens: keyName === "DEEPSEEK_KEY" ? 50_000 : 16384,
                 system: system,
                 thinking: (reasoning ? {
                     type: "adaptive",
