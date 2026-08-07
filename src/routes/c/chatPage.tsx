@@ -17,6 +17,7 @@ export function ChatPage() {
     const [system, setSystem] = useState(newPromptAug2026);
     const [legacy, setLegacy] = useState(false)
     const [systemShown, setSystemShown] = useState(false)
+    const [unlockTokenLimit, setUnlockTokenLimit] = useState(false)
     const [loadHistorySelector, setLoadHistorySelector] = useState(-1)
 
     const [serialisedHistory, setSerialisedHistory] = useState<SerialisedHistory[]>([])
@@ -352,6 +353,7 @@ export function ChatPage() {
         if (promptStuff) {
             return <>
                 <button type="button" className={styles.promptButton} onClick={() => setSystemShown(old => !old)}>Show Sys</button>
+                <button type="button" className={styles.promptButton} onClick={() => setUnlockTokenLimit(old => !old)}>{"UnlockTokenLimit: " + (unlockTokenLimit ? "On" : "Off")}</button>
                 <button type="button" className={styles.promptButton}
                         onClick={() => setLegacy(old => !old)}>Legacy: {legacy ? "On" : "Off"}
                 </button>
@@ -380,7 +382,8 @@ export function ChatPage() {
             model_id: model,
             system_prompt: system,
             history: history.filter(h => !h.hidden),
-            reasoning: reasoningEnabled
+            reasoning: reasoningEnabled,
+            options: {extraTokens: unlockTokenLimit}
         };
 
         const response = await fetch(legacy ? "legacyChat" : "chatEndpoint", {

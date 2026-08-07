@@ -33,9 +33,12 @@ export class Provider {
                 return "\n# End Reasoning Answer\n";
             }
             return null;
-        }, async (env, question, model, system, history, reasoning) => {
+        }, async (env, question, model, system, history, reasoning, options) => {
 
             const input = appendHistory(question, history)
+
+            // @ts-ignore
+            const extraTokenLimit = options && options.extraTokens
 
             const response = await fetch("https://api.openai.com/v1/responses", {
                 method: "POST",
@@ -47,7 +50,7 @@ export class Provider {
                     model,
                     input,
                     instructions: system,
-                    max_output_tokens: 8192,
+                    max_output_tokens: extraTokenLimit ? 50_000 : 8192,
                     stream: true,
                     ...(reasoning ? { reasoning: { effort: "high", summary: "auto" } } : {}),
                 }),
@@ -72,16 +75,19 @@ export class Provider {
                 return "\n# End Reasoning Answer\n";
             }
             return null
-        }, async (env, question, model, system, history, reasoning) => {
+        }, async (env, question, model, system, history, reasoning, options) => {
 
             const input = appendHistory(question, history)
+
+            // @ts-ignore
+            const extraTokenLimit = options && options.extraTokens
 
             // @ts-ignore
             const body = {
                 messages: input,
                 stream: true,
                 model: model,
-                max_tokens: keyName === "DEEPSEEK_KEY" ? 50_000 : 16384,
+                max_tokens: (keyName === "DEEPSEEK_KEY" || extraTokenLimit) ? 50_000 : 8192,
                 system: system,
                 thinking: (reasoning ? {
                     type: "adaptive",
@@ -90,8 +96,6 @@ export class Provider {
 
             }
 
-            console.log(body)
-            console.log(keyName)
 
 
             const response = await fetch(url, {
@@ -117,7 +121,7 @@ export class Provider {
 
 
 
-    private constructor(public getText: (chunk: any) => string | null, public buildStream: (env: any, question: string, model: string, system: string, history: object[], reasoning: boolean | undefined) => Promise<any>) {}
+    private constructor(public getText: (chunk: any) => string | null, public buildStream: (env: any, question: string, model: string, system: string, history: object[], reasoning: boolean | undefined, options: object | undefined) => Promise<any>) {}
 }
 
 // @ts-ignore
