@@ -33,7 +33,7 @@ export class Provider {
                 return "\n# End Reasoning Answer\n";
             }
             return null;
-        }, async (env, question, model, system, history, reasoning, options) => {
+        }, async (env, question, model, system, history, reasoning, options, reasoningOptions) => {
 
             const input = appendHistory(question, history)
 
@@ -52,7 +52,7 @@ export class Provider {
                     instructions: system,
                     max_output_tokens: extraTokenLimit ? 50_000 : 8192,
                     stream: true,
-                    ...(reasoning ? { reasoning: { effort: "high", summary: "auto" } } : {}),
+                    ...(reasoning ? {reasoning: reasoningOptions} : {}),
                 }),
             });
 
@@ -75,7 +75,7 @@ export class Provider {
                 return "\n# End Reasoning Answer\n";
             }
             return null
-        }, async (env, question, model, system, history, reasoning, options) => {
+        }, async (env, question, model, system, history, reasoning, options, reasoningOptions) => {
 
             const input = appendHistory(question, history)
 
@@ -89,11 +89,7 @@ export class Provider {
                 model: model,
                 max_tokens: (keyName === "DEEPSEEK_KEY" || extraTokenLimit) ? 50_000 : 8192,
                 system: system,
-                thinking: (reasoning ? {
-                    type: "adaptive",
-                    display: "summarized"
-                } : undefined)
-
+                thinking: (reasoning ? reasoningOptions : undefined)
             }
 
 
@@ -121,7 +117,7 @@ export class Provider {
 
 
 
-    private constructor(public getText: (chunk: any) => string | null, public buildStream: (env: any, question: string, model: string, system: string, history: object[], reasoning: boolean | undefined, options: object | undefined) => Promise<any>) {}
+    private constructor(public getText: (chunk: any) => string | null, public buildStream: (env: any, question: string, model: string, system: string, history: object[], reasoning: boolean | undefined, options: object | undefined, reasoningOptions: any) => Promise<any>) {}
 }
 
 // @ts-ignore
@@ -139,10 +135,12 @@ export function appendHistory(question, history: object[]): object[] {
 }
 
 export const models = [
-    { cute_name: `GPTlunar`, api_name: "gpt-5.6-terra", provider: Provider.ofOpenai()},
-    { cute_name: `GPTsol`, api_name: "gpt-5.6-sol", provider: Provider.ofOpenai()},
-    { cute_name: `WALLET`, api_name: "claude-fable-5", provider: Provider.ofClaude("https://api.anthropic.com/v1/messages", "CLAUDE_KEY")},
-    { cute_name: `Deepseek`, api_name: "deepseek-v4-pro", provider: Provider.ofClaude("https://api.deepseek.com/anthropic/v1/messages", "DEEPSEEK_KEY")}
+    { cute_name: `GPTlunar`, api_name: "gpt-5.6-luna", provider: Provider.ofOpenai(), reasoning: { effort: "low"}},
+    { cute_name: `GPTsol`, api_name: "gpt-5.6-sol", provider: Provider.ofOpenai(), reasoning: { effort: "high", summary: "auto" }},
+    { cute_name: `fable`, api_name: "claude-fable-5", provider: Provider.ofClaude("https://api.anthropic.com/v1/messages", "CLAUDE_KEY"),
+        reasoning: { type: "adaptive", display: "summarized" }},
+    { cute_name: `Deepseek`, api_name: "deepseek-v4-flash", provider: Provider.ofClaude("https://api.deepseek.com/anthropic/v1/messages", "DEEPSEEK_KEY"),
+        thinking: { type: "enabled" }}
 
 ];
 

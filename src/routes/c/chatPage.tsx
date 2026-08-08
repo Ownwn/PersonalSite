@@ -31,7 +31,7 @@ export function ChatPage() {
     ])
     // @ts-ignore
     const [historyEnabled, setHistoryEnabled] = useState(true)
-    const [reasoningEnabled, setReasoningEnabled] = useState(false)
+    const [reasoningEnabled, setReasoningEnabled] = useState(true)
 
     const [promptStuff, setPromptStuff] = useState(false);
     const [pendingQuestion, setPendingQuestion] = useState("")
@@ -116,7 +116,7 @@ export function ChatPage() {
 
                 </select>
 
-                <button type="button" className={styles.promptButton}
+                <button type="button" className={styles.promptButton} style={{backgroundColor: (reasoningEnabled ? "rgba(34,34,255,0.51)" : "rgba(255,34,34,0.51)")}}
                         onClick={() => setReasoningEnabled(old => !old)}>Think: {reasoningEnabled ? "On" : "Off"}
                 </button>
 

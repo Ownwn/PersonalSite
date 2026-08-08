@@ -25,7 +25,7 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
 
     const provider = models[modelId].provider;
     try {
-        const messageStream = await provider.buildStream(context.env, userData.question, models[modelId].api_name, userData.system_prompt, userData.history, userData.reasoning, userData.options)
+        const messageStream = await provider.buildStream(context.env, userData.question, models[modelId].api_name, userData.system_prompt, userData.history, userData.reasoning, userData.options, models[modelId].reasoning)
         return stream(messageStream, provider)
     } catch (err) {
         return genResponse(err.message, 500)
