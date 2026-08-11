@@ -9,6 +9,37 @@ import {newPromptAug2026, models} from "../../assets/constants.ts";
 type HistoryChunk = {question: string, response: string, hidden: boolean}
 type SerialisedHistory = {id: string, title: string, created_at: number, body: string}
 
+// Turns a raw SSE `data:` payload from OpenAI / Anthropic into display text.
+// Returns null for non-text events. Errors are surfaced as visible text.
+function extractResponseText(data: string): string | null {
+    if (data === "[DONE]") return null;
+    try {
+        const chunk = JSON.parse(data);
+        if (chunk.error) {
+            return `\n[ERROR] ${typeof chunk.error === 'string' ? chunk.error : JSON.stringify(chunk.error)}\n`;
+        }
+        // OpenAI Responses API
+        if (typeof chunk.delta === 'string') {
+            return chunk.delta;
+        }
+        if (chunk.type && chunk.type.includes("reasoning_summary_text.done")) {
+            return "\n# End Reasoning Answer\n";
+        }
+        // Anthropic / Deepseek
+        if (chunk.type === 'content_block_delta' && chunk.delta &&
+            (chunk.delta.type === 'text_delta' || chunk.delta.type === 'thinking_delta')) {
+            return chunk.delta.text || chunk.delta.thinking;
+        }
+        if (chunk.type === 'content_block_start' && chunk.content_block && chunk.content_block.type === 'text') {
+            return "\n# End Reasoning Answer\n";
+        }
+        return null;
+    } catch (e) {
+        console.error("Error parsing SSE data:", data, e);
+        return null;
+    }
+}
+
 export function ChatPage() {
 
     const [botResponse, setBotResponse] = useState("");
@@ -437,38 +468,28 @@ export function ChatPage() {
                 buffer = lines.pop() || '';
 
                 for (const line of lines) {
-                    if (line.startsWith('data: ')) {
-                        const data = line.slice(6);
+                    if (line.startsWith('data:')) {
+                        const data = line.slice(5).trim();
                         if (data === '[DONE]') {
                             return;
                         }
 
-                        try {
-                            const parsed = JSON.parse(data);
-                            if (parsed) {
-                                setBotResponse(prev => prev + parsed);
-                                res += parsed;
-                            }
-                        } catch (e) {
-                            console.error("Parsing error with ", data, " Error is ", e)
+                        const text = extractResponseText(data);
+                        if (text != null) {
+                            setBotResponse(prev => prev + text);
+                            res += text;
                         }
-                    } else if (line.trim() !== '') {
-                        console.log("Unexpected line:", line);
                     }
                 }
             }
 
-            if (buffer.trim() && buffer.startsWith('data: ')) {
-                const data = buffer.slice(6);
+            if (buffer.trim() && buffer.startsWith('data:')) {
+                const data = buffer.slice(5).trim();
                 if (data !== '[DONE]') {
-                    try {
-                        const parsed = JSON.parse(data);
-                        if (parsed) {
-                            setBotResponse(prev => prev + parsed);
-                            res += parsed;
-                        }
-                    } catch (ignored) {
-                        console.log("Error parsing buffer", data);
+                    const text = extractResponseText(data);
+                    if (text != null) {
+                        setBotResponse(prev => prev + text);
+                        res += text;
                     }
                 }
             }

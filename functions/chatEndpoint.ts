@@ -1,4 +1,4 @@
-import Provider, {models} from "../src/assets/constants";
+import {models} from "../src/assets/constants";
 import { genResponse } from "./404"
 
 export async function onRequestPost(context: EventContext<any, any, any>) {
@@ -26,30 +26,38 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
     const provider = models[modelId].provider;
     try {
         const messageStream = await provider.buildStream(context.env, userData.question, models[modelId].api_name, userData.system_prompt, userData.history, userData.reasoning, userData.options, models[modelId].reasoning)
-        return stream(messageStream, provider)
+        return stream(messageStream)
     } catch (err) {
         return genResponse(err.message, 500)
     }
 }
 
-async function stream(messageStream, provider: Provider) {
+async function stream(messageStream: Response) {
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder("utf-8");
+    const reader = messageStream.body.getReader();
+    let buffer = "";
+
     const stream = new ReadableStream({
         async start(controller) {
-            const encoder = new TextEncoder();
             try {
-                for await (const chunk of messageStream) {
-                    const text = provider.getText(chunk)
-                    if (text != null) {
-                        controller.enqueue(encoder.encode(`data: ${JSON.stringify(text)}\n\n`));
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split("\n");
+                    buffer = lines.pop() || "";
+
+                    for (const line of lines) {
+                        if (line.startsWith("data:")) {
+                            controller.enqueue(encoder.encode(line + "\n\n"));
+                        }
                     }
                 }
-
             } catch (error) {
                 console.error("Error streaming:", error);
-                controller.enqueue(encoder.encode(`data: ${JSON.stringify(error.message)}\n\n`));
-                controller.enqueue(encoder.encode('data: [DONE]\n\n'));
-                controller.close();
-                return
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({error: error.message})}\n\n`));
             }
             controller.enqueue(encoder.encode('data: [DONE]\n\n'));
             controller.close();
