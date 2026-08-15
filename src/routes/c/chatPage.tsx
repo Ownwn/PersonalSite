@@ -390,6 +390,9 @@ export function ChatPage() {
                 <button type="button" className={styles.promptButton}
                         onClick={() => setLegacy(old => !old)}>Legacy: {legacy ? "On" : "Off"}
                 </button>
+                <button type="button" className={styles.promptButton}
+                        onClick={() => {}}>DISASBLE REASONING BLOCK: TODO {/* todo */}
+                </button>
             </>;
         }
 
