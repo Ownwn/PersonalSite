@@ -29,6 +29,8 @@ function extractResponseText(data: string): string | null {
         if (chunk.type === 'content_block_delta' && chunk.delta &&
             (chunk.delta.type === 'text_delta' || chunk.delta.type === 'thinking_delta')) {
             return chunk.delta.text || chunk.delta.thinking;
+        } else if (chunk.type === 'message_delta' && chunk.delta) {
+            return JSON.stringify(chunk.delta)
         }
         if (chunk.type === 'content_block_start' && chunk.content_block && chunk.content_block.type === 'text') {
             return "\n# End Reasoning Answer\n";
