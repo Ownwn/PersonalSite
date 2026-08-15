@@ -29,7 +29,7 @@ function extractResponseText(data: string): string | null {
         if (chunk.type === 'content_block_delta' && chunk.delta &&
             (chunk.delta.type === 'text_delta' || chunk.delta.type === 'thinking_delta')) {
             return chunk.delta.text || chunk.delta.thinking;
-        } else if (chunk.type === 'message_delta' && chunk.delta) {
+        } else if (chunk.type === 'message_delta' && chunk.delta.stop_reason === 'refusal') {
             return JSON.stringify(chunk.delta)
         }
         if (chunk.type === 'content_block_start' && chunk.content_block && chunk.content_block.type === 'text') {
