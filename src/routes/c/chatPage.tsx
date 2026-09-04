@@ -48,7 +48,6 @@ export function ChatPage() {
     const [question, setQuestion] = useState("");
     const [model, setModel] = useState(String(0));
     const [system, setSystem] = useState(newPromptAug2026);
-    const [legacy, setLegacy] = useState(false)
     const [systemShown, setSystemShown] = useState(false)
     const [unlockTokenLimit, setUnlockTokenLimit] = useState(false)
     const [loadHistorySelector, setLoadHistorySelector] = useState(-1)
@@ -150,7 +149,7 @@ export function ChatPage() {
                 </select>
 
                 <button type="button" className={styles.promptButton} style={{backgroundColor: (reasoningEnabled ? "rgba(34,34,255,0.51)" : "rgba(255,34,34,0.51)")}}
-                        onClick={() => setReasoningEnabled(old => !old)}>Think: {reasoningEnabled ? "On" : "Off"}
+                        onClick={() => setReasoningEnabled(old => !old)}>Thnk:{reasoningEnabled ? "On" : "Off"}
                 </button>
 
 
@@ -386,10 +385,7 @@ export function ChatPage() {
         if (promptStuff) {
             return <>
                 <button type="button" className={styles.promptButton} onClick={() => setSystemShown(old => !old)}>Show Sys</button>
-                <button type="button" className={styles.promptButton} onClick={() => setUnlockTokenLimit(old => !old)}>{"UnlockTokenLimit: " + (unlockTokenLimit ? "On" : "Off")}</button>
-                <button type="button" className={styles.promptButton}
-                        onClick={() => setLegacy(old => !old)}>Legacy: {legacy ? "On" : "Off"}
-                </button>
+                <button type="button" className={styles.promptButton} onClick={() => setUnlockTokenLimit(old => !old)}>{"tokenL: " + (unlockTokenLimit ? "On" : "Off")}</button>
                 <button type="button" className={styles.promptButton}
                         onClick={() => {}}>DISASBLE REASONING BLOCK: TODO {/* todo */}
                 </button>
@@ -422,7 +418,7 @@ export function ChatPage() {
             options: {extraTokens: unlockTokenLimit}
         };
 
-        const response = await fetch(legacy ? "legacyChat" : "chatEndpoint", {
+        const response = await fetch("chatEndpoint", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -435,22 +431,6 @@ export function ChatPage() {
             return;
         }
         const oldQuestion = question
-
-        if (legacy) {
-            try {
-                const legacyRes = await response.json()
-                setHistory(old => [...old, {question: oldQuestion, response: legacyRes, hidden: false}])
-                setBotResponse(legacyRes)
-                setBotResponse("")
-                console.log("Legacy User: ", oldQuestion);
-                console.log("\n")
-                console.log("Legacy Res: ", legacyRes);
-                console.log("\n\n\n");
-            } catch (e) {
-                setBotResponse("Failed " + e)
-            }
-            return;
-        }
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();

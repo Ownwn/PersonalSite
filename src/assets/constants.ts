@@ -109,11 +109,11 @@ export function appendHistory(question, history: object[]): object[] {
 }
 
 export const models = [
-    { cute_name: `GPTlunar`, api_name: "gpt-5.6-luna", provider: Provider.ofOpenai(), reasoning: { effort: "low"}},
-    { cute_name: `GPTsol`, api_name: "gpt-5.6-sol", provider: Provider.ofOpenai(), reasoning: { effort: "high", summary: "auto" }},
+    { cute_name: `lunar`, api_name: "gpt-5.6-luna", provider: Provider.ofOpenai(), reasoning: { effort: "low"}},
+    { cute_name: `sol`, api_name: "gpt-5.6-sol", provider: Provider.ofOpenai(), reasoning: { effort: "high", summary: "auto" }},
     { cute_name: `fable`, api_name: "claude-fable-5", provider: Provider.ofClaude("https://api.anthropic.com/v1/messages", "CLAUDE_KEY"),
         reasoning: { type: "adaptive", display: "summarized" }},
-    { cute_name: `Deepseek`, api_name: "deepseek-v4-flash", provider: Provider.ofClaude("https://api.deepseek.com/anthropic/v1/messages", "DEEPSEEK_KEY"),
+    { cute_name: `deeps`, api_name: "deepseek-v4-flash", provider: Provider.ofClaude("https://api.deepseek.com/anthropic/v1/messages", "DEEPSEEK_KEY"),
         thinking: { type: "enabled" }}
 
 ];
