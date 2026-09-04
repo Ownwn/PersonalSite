@@ -203,7 +203,7 @@ export function ChatPage() {
                 Select chat
             </option>
             {serialisedHistory.map((hist, index) => (
-                <option value={index} key={hist.id}>{hist.title.substring(0, 30)}</option>
+                <option value={index} key={hist.id}>{hist.title.substring(0, 50)}</option>
             ))}
 
         </select>
@@ -238,7 +238,7 @@ export function ChatPage() {
         }
 
 
-        const title = history[0].question.substring(0, 30)
+        const title = history[0].question.substring(0, 50)
 
         let res = await fetch("savedChats", {
             method: "POST",
@@ -384,7 +384,7 @@ export function ChatPage() {
     function PromptTools() {
         if (promptStuff) {
             return <>
-                <button type="button" className={styles.promptButton} onClick={() => setSystemShown(old => !old)}>Show Sys</button>
+                <button type="button" className={styles.promptButton} onClick={() => setSystemShown(old => !old)}>System</button>
                 <button type="button" className={styles.promptButton} onClick={() => setUnlockTokenLimit(old => !old)}>{"tokenL: " + (unlockTokenLimit ? "On" : "Off")}</button>
                 <button type="button" className={styles.promptButton}
                         onClick={() => {}}>DISASBLE REASONING BLOCK: TODO {/* todo */}
@@ -427,7 +427,7 @@ export function ChatPage() {
         });
 
         if (!response.body || !response.ok) {
-            setBotResponse("Failed " + String(response.status) + " " + String(await response.text()).substring(0, 200));
+            setBotResponse("Failed " + String(response.status) + " " + String(await response.text()).substring(0, 300));
             return;
         }
         const oldQuestion = question
