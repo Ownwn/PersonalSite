@@ -25,16 +25,17 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
         userData = await context.request.json();
         const title: string = userData.title;
         const body: object = userData.body;
+        const id: string = userData.id;
 
-        const id = crypto.randomUUID()
-        const time = Date.now()
-        if (!title || !body) {
-            console.error("missing title or body. (title, body): ", title, body)
-            return genResponse("missing title or body", 400)
+        const updatedTime = Date.now()
+        if (!title || !body || !id) {
+            console.error("missing title or body or uuid. (title, body, uuid): ", title, body, id)
+            return genResponse("missing title or body or id", 400)
         }
 
-        const res = await context.env.CHATS.prepare("insert into conversations (id, title, created_at, body) values (?, ?, ?, ?)")
-            .bind(id, title, time, JSON.stringify(body))
+        const res = await context.env.CHATS.prepare(
+            "insert into conversations (id, title, created_at, body, updated_at) values (?, ?, ?, ?, ?) on conflict(id) do update set title = excluded.title, body = excluded.body, updated_at = excluded.updated_at")
+            .bind(id, title, updatedTime, JSON.stringify(body), updatedTime)
             .run()
 
 

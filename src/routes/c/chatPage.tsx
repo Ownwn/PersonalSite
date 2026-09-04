@@ -7,7 +7,7 @@ import Cookies from "js-cookie";
 import {newPromptAug2026, models} from "../../assets/constants.ts";
 
 type HistoryChunk = {question: string, response: string, hidden: boolean}
-type SerialisedHistory = {id: string, title: string, created_at: number, body: string}
+type SerialisedHistory = {id: string, title: string, created_at: number, body: string, updated_at: number}
 
 // Turns a raw SSE `data:` payload from OpenAI / Anthropic into display text.
 // Returns null for non-text events. Errors are surfaced as visible text.
@@ -51,6 +51,8 @@ export function ChatPage() {
     const [systemShown, setSystemShown] = useState(false)
     const [unlockTokenLimit, setUnlockTokenLimit] = useState(false)
     const [loadHistorySelector, setLoadHistorySelector] = useState(-1)
+    const [uuid, setUuid] = useState<string>(crypto.randomUUID())
+    const [autosave, setAutosave] = useState(false)
 
     const [serialisedHistory, setSerialisedHistory] = useState<SerialisedHistory[]>([])
 
@@ -107,6 +109,9 @@ export function ChatPage() {
                             <button type="button" className={styles.promptButton}
                                     onClick={() => setPromptStuff(!promptStuff)}>Toggle
                             </button>
+                            <button type="button" className={styles.promptButton} style={{backgroundColor: (autosave ? "rgba(34,34,255,0.51)" : "rgba(255,34,34,0.51)")}}
+                                    onClick={() => setAutosave(!autosave)}>Save
+                            </button>
 
 
                             <br/>
@@ -156,9 +161,6 @@ export function ChatPage() {
             </>;
         }
         return <>
-            <button type="button" className={styles.promptButton}
-                    onClick={saveChatToD1}>Save
-            </button>
             <LoadFromCookieSelectorComponent/>
             <button type="button" className={styles.promptButton}
                     onClick={loadChatFromHistory}>Load
@@ -176,7 +178,7 @@ export function ChatPage() {
             }
             const json: SerialisedHistory[] = await historySaved.json()
             const mappedChunks = json
-                .sort((h1, h2) => h2.created_at - h1.created_at)
+                .sort((h1, h2) => h2.updated_at - h1.updated_at)
             setSerialisedHistory(mappedChunks)
         } catch (e: any) {
             setBotResponse(old => "error!!: " + e.message + " " + old)
@@ -224,6 +226,7 @@ export function ChatPage() {
         try {
 
         setHistory(JSON.parse(selected.body))
+        setUuid(selected.id)
         } catch (e) {
             // @ts-ignore
             setBotResponse("error loading history " + e.message + "body is:" + selected.body)
@@ -232,19 +235,20 @@ export function ChatPage() {
 
     }
 
-    async function saveChatToD1()  {
-        if (history.length == 0) {
+async function saveChatToD1(newHistory: HistoryChunk[])  {
+        if (newHistory.length == 0) {
             return
         }
 
 
-        const title = history[0].question.substring(0, 50)
+        const title = newHistory[0].question.substring(0, 50)
 
-        let res = await fetch("savedChats", {
+        const res = await fetch("savedChats", {
             method: "POST",
             body: JSON.stringify({
                 title: title,
-                body: history
+                body: newHistory,
+                id: uuid
             })
         })
 
@@ -484,6 +488,9 @@ export function ChatPage() {
             console.log("\n")
             console.log("Res: ", res);
             console.log("\n\n\n");
+            if (autosave) {
+                saveChatToD1([...history, {question: oldQuestion, response: res, hidden: false}])
+            }
             setHistory(old => [...old, {question: oldQuestion, response: res, hidden: false}])
             setBotResponse("")
 
