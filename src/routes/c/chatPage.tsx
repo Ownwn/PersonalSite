@@ -198,6 +198,9 @@ export function ChatPage() {
             <button type="button" className={styles.promptButton}
                     onClick={loadChatFromHistory}>Load
             </button>
+            <button type="button" className={styles.promptButton} style={{backgroundColor: "red"}}
+                    onClick={archiveSavedChat}>Del
+            </button>
         </>
 
 
@@ -268,11 +271,35 @@ export function ChatPage() {
 
     }
 
+async function archiveSavedChat() {
+    const selected = serialisedHistory[loadHistorySelector]
+
+    if (!selected) {
+        setBotResponse("cant DELETE find value from the key " + loadHistorySelector + ":((((.")
+        console.log("cant DELETE find value from the key " + loadHistorySelector + ":((((.")
+        return
+    }
+
+    const res = await fetch("savedChats", {
+        method: "DELETE",
+        body: JSON.stringify({
+            id: uuid
+        })
+    })
+
+    if (!res.ok) {
+        console.error("bad res for deleting chat!")
+        setBotResponse(old => "bad res for delete chat " + res.statusText + old)
+    }
+    fetchSerialisedConversations()
+
+
+}
+
 async function saveChatToD1(newHistory: HistoryChunk[])  {
         if (newHistory.length == 0) {
             return
         }
-
 
         const title = newHistory[0].question.substring(0, 50)
 
