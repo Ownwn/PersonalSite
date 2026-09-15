@@ -105,13 +105,20 @@
     border-radius: 5px;
 }
 
+.modelselect {
+    width: 50px;
+    height: 30px;
+}
+
+.savedchatselect {
+    width: 200px;
+    height: 30px;
+}
+
 select {
     background-color: rgba(86, 86, 86, 0.3);
     border: none;
     border-radius: 5px;
-    width: 50px;
-    height: 30px;
-
 }
 
 select:hover {

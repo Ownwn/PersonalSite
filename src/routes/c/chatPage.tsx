@@ -54,7 +54,40 @@ export function ChatPage() {
     const [uuid, setUuid] = useState<string>(crypto.randomUUID())
     const [autosave, setAutosave] = useState(false)
 
-    const [serialisedHistory, setSerialisedHistory] = useState<SerialisedHistory[]>([])
+    const [serialisedHistory, setSerialisedHistory] = useState<SerialisedHistory[]>([
+        {
+            id: "asdasdasdsadsad",
+            title: "Test question first one",
+            created_at: 1757600000000,
+            updated_at: 1757600000000,
+            body: JSON.stringify([
+                {
+                    question: "Test question",
+                    response: "Example response.\n```\npublic class Main{\n     public static void main(String args[]) {\n         System.out.println(\"foo bar\");\n     }\n}",
+                    hidden: false
+                }
+            ])
+        },
+        {
+            id: "asdfsdgfsgdfg",
+            title: "Second test",
+            created_at: 1757700000000,
+            updated_at: 1757800000000,
+            body: JSON.stringify([
+                {question: "Second test", response: "Another res.\nokay.\nnext", hidden: false},
+                {question: "Follow up", response: "Sure thing.", hidden: false}
+            ])
+        },
+        {
+            id: "fhgfhfghfgh",
+            title: "Third test with a really long name one that spans a lot of things because its long",
+            created_at: 1757850000000,
+            updated_at: 1757850000000,
+            body: JSON.stringify([
+                {question: "Third test", response: "Third response.", hidden: false}
+            ])
+        }
+    ])
 
     const [history, setHistory] = useState<HistoryChunk[]>([
         // {question: "Test question", response: "" +
@@ -146,7 +179,7 @@ export function ChatPage() {
     function ModelSelector({ row }) {
         if (row === 0) {
             return <>
-                <select value={model} name="model" onChange={e => setModel(e.target.value)}>
+                <select className={styles.modelselect} value={model} name="model" onChange={e => setModel(e.target.value)}>
                     {models.map((m, index) => (
                         <option value={index} key={index}>{m.cute_name}</option>
                     ))}
@@ -200,12 +233,12 @@ export function ChatPage() {
     }
 
     function LoadFromCookieSelectorComponent() {
-        return <select value={loadHistorySelector} name="loadselector" onChange={e => setLoadHistorySelector(Number(e.target.value))}>
+        return <select className={styles.savedchatselect} value={loadHistorySelector} name="loadselector" onChange={e => setLoadHistorySelector(Number(e.target.value))}>
             <option value={-1} disabled>
                 Select chat
             </option>
             {serialisedHistory.map((hist, index) => (
-                <option value={index} key={hist.id}>{hist.title.substring(0, 50)}</option>
+                <option value={index} key={hist.id}>{hist.title.substring(0, 100)}</option>
             ))}
 
         </select>
@@ -390,9 +423,6 @@ async function saveChatToD1(newHistory: HistoryChunk[])  {
             return <>
                 <button type="button" className={styles.promptButton} onClick={() => setSystemShown(old => !old)}>System</button>
                 <button type="button" className={styles.promptButton} onClick={() => setUnlockTokenLimit(old => !old)}>{"tokenL: " + (unlockTokenLimit ? "On" : "Off")}</button>
-                <button type="button" className={styles.promptButton}
-                        onClick={() => {}}>DISASBLE REASONING BLOCK: TODO {/* todo */}
-                </button>
             </>;
         }
 
