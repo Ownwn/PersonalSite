@@ -51,7 +51,8 @@ export class Provider {
             return null
         }, async (env, question, model, system, history, reasoning, options, reasoningOptions) => {
 
-            const input = appendHistory(question, history)
+            // crybaby anthropic
+            const input = appendHistory(question, history, true)
 
             // @ts-ignore
             const extraTokenLimit = options && options.extraTokens
@@ -95,17 +96,28 @@ export class Provider {
 }
 
 // @ts-ignore
-export function appendHistory(question, history: object[]): object[] {
+export function appendHistory(question, history: object[], stripReasoning = false): object[] {
     const input = []
     for (let i = 0; i < history.length; i++) {
         const historyChunk = history[i]
         // @ts-ignore
         input.push({"role": "user", "content": historyChunk.question})
         // @ts-ignore
-        input.push({"role": "assistant", "content": historyChunk.response})
+        const response = stripReasoning ? removeReasoning(historyChunk.response) : historyChunk.response
+        input.push({"role": "assistant", "content": response})
     }
     input.push({"role": "user", "content": question})
     return input
+}
+
+export function removeReasoning(response: string): string {
+    const marker = "# End Reasoning Answer";
+    const index = response.lastIndexOf(marker);
+    if (index === -1) {
+        return response;
+    }
+    const answer = response.substring(index + marker.length).replace(/^\n+/, "");
+    return answer.trim() === "" ? response : answer;
 }
 
 export const models = [
