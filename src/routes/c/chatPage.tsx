@@ -274,9 +274,9 @@ async function saveChatToD1(newHistory: HistoryChunk[])  {
                     <span className={styles.together}>
                         {!trueHistory ? <></> : toggleHistoryButton(historyIndex)}
                         {historyPiece.hidden ? <s>
-                            {getHeaderLine(historyPiece.question, 1, 9999)}
+                            {getHeaderLine(historyPiece.question, 0, 9999)}
                         </s> : <>
-                            {getHeaderLine(historyPiece.question, 1, 9999)}</>}
+                            {getHeaderLine(historyPiece.question, 0, 9999)}</>}
                     </span>
                 </span>
 
@@ -338,7 +338,7 @@ async function saveChatToD1(newHistory: HistoryChunk[])  {
                 newLine = <h4 key={key}>{line}</h4>;
                 break;
             default:
-                newLine = <span key={key}>{line}</span>;
+                newLine = <p key={key}>{line}</p>;
                 break;
         }
         return newLine;
