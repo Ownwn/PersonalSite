@@ -38,15 +38,44 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
             .bind(id, title, updatedTime, JSON.stringify(body), updatedTime)
             .run()
 
+        return new Response("posted with success: " + res.success, {
+            headers: {"Content-Type": "text/plain"},
+            status: 200
+        });
 
     } catch (e) {
         console.error(e)
-        return genResponse("unknown error " + e.message, 500)
+        return genResponse("unknown error posting " + e.message, 500)
     }
 
+}
 
-    return new Response("and posted!!", {
-        headers: {"Content-Type": "text/plain"},
-        status: 200
-    });
+
+export async function onRequestDelete(context: EventContext<any, any, any>) {
+    let userData;
+
+    try {
+        userData = await context.request.json();
+        const uuid: string = userData.id;
+
+        if (!uuid) {
+            console.error("missing uuid for delete!")
+            return genResponse("missing uuid for delete", 400)
+        }
+
+        const res = await context.env.CHATS.prepare(
+            "update conversations set title = '...ARCHIVED...' || title where id = ?")
+            .bind(uuid)
+            .run()
+
+        return new Response("deleted with success: " + res.success, {
+            headers: {"Content-Type": "text/plain"},
+            status: 200
+        });
+
+
+    } catch (e) {
+        console.error(e)
+        return genResponse("unknown error deleting " + e.message, 500)
+    }
 }

@@ -55,38 +55,38 @@ export function ChatPage() {
     const [autosave, setAutosave] = useState(false)
 
     const [serialisedHistory, setSerialisedHistory] = useState<SerialisedHistory[]>([
-        {
-            id: "asdasdasdsadsad",
-            title: "Test question first one",
-            created_at: 1757600000000,
-            updated_at: 1757600000000,
-            body: JSON.stringify([
-                {
-                    question: "Test question",
-                    response: "Example response.\n```\npublic class Main{\n     public static void main(String args[]) {\n         System.out.println(\"foo bar\");\n     }\n}",
-                    hidden: false
-                }
-            ])
-        },
-        {
-            id: "asdfsdgfsgdfg",
-            title: "Second test",
-            created_at: 1757700000000,
-            updated_at: 1757800000000,
-            body: JSON.stringify([
-                {question: "Second test", response: "Another res.\nokay.\nnext", hidden: false},
-                {question: "Follow up", response: "Sure thing.", hidden: false}
-            ])
-        },
-        {
-            id: "fhgfhfghfgh",
-            title: "Third test with a really long name one that spans a lot of things because its long",
-            created_at: 1757850000000,
-            updated_at: 1757850000000,
-            body: JSON.stringify([
-                {question: "Third test", response: "Third response.", hidden: false}
-            ])
-        }
+        // {
+        //     id: "asdasdasdsadsad",
+        //     title: "Test question first one",
+        //     created_at: 1757600000000,
+        //     updated_at: 1757600000000,
+        //     body: JSON.stringify([
+        //         {
+        //             question: "Test question",
+        //             response: "Example response.\n```\npublic class Main{\n     public static void main(String args[]) {\n         System.out.println(\"foo bar\");\n     }\n}",
+        //             hidden: false
+        //         }
+        //     ])
+        // },
+        // {
+        //     id: "asdfsdgfsgdfg",
+        //     title: "Second test",
+        //     created_at: 1757700000000,
+        //     updated_at: 1757800000000,
+        //     body: JSON.stringify([
+        //         {question: "Second test", response: "Another res.\nokay.\nnext", hidden: false},
+        //         {question: "Follow up", response: "Sure thing.", hidden: false}
+        //     ])
+        // },
+        // {
+        //     id: "fhgfhfghfgh",
+        //     title: "Third test with a really long name one that spans a lot of things because its long",
+        //     created_at: 1757850000000,
+        //     updated_at: 1757850000000,
+        //     body: JSON.stringify([
+        //         {question: "Third test", response: "Third response.", hidden: false}
+        //     ])
+        // }
     ])
 
     const [history, setHistory] = useState<HistoryChunk[]>([
