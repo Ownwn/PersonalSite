@@ -62,9 +62,10 @@ export async function onRequestDelete(context: EventContext<any, any, any>) {
             console.error("missing uuid for delete!")
             return genResponse("missing uuid for delete", 400)
         }
+        console.log(uuid)
 
         const res = await context.env.CHATS.prepare(
-            "update conversations set title = '...ARCHIVED...' || title where id = ?")
+            "update conversations set title = '...ARCHIVED...' || title where id = ? and title not like '...ARCHIVED...%'")
             .bind(uuid)
             .run()
 
