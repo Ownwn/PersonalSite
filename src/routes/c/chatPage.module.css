@@ -56,6 +56,16 @@
 
 }
 
+.modelselect {
+    width: 50px;
+    height: 30px;
+}
+
+.savedchatselect {
+    width: 200px;
+    height: 30px;
+}
+
 .codeResponse {
     color: black;
     font-family: "Cascadia Code";
