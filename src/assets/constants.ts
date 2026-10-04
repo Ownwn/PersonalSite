@@ -24,7 +24,7 @@ export class Provider {
                     model,
                     input,
                     instructions: system,
-                    max_output_tokens: extraTokenLimit ? 50_000 : 8192,
+                    max_output_tokens: extraTokenLimit ? 70_000 : 8192,
                     stream: true,
                     ...(reasoning ? {reasoning: reasoningOptions} : {}),
                 }),
@@ -62,7 +62,7 @@ export class Provider {
                 messages: input,
                 stream: true,
                 model: model,
-                max_tokens: (keyName === "DEEPSEEK_KEY" || extraTokenLimit) ? 50_000 : 8192,
+                max_tokens: (keyName === "DEEPSEEK_KEY" || extraTokenLimit) ? 70_000 : 8192,
                 system: system,
                 thinking: (reasoning ? reasoningOptions : undefined)
             }

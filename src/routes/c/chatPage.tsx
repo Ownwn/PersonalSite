@@ -186,11 +186,6 @@ export function ChatPage() {
 
                 </select>
 
-                <button type="button" className={styles.promptButton} style={{backgroundColor: (reasoningEnabled ? "rgba(34,34,255,0.51)" : "rgba(255,34,34,0.51)")}}
-                        onClick={() => setReasoningEnabled(old => !old)}>Thnk:{reasoningEnabled ? "On" : "Off"}
-                </button>
-
-
             </>;
         }
         return <>
@@ -449,8 +444,13 @@ async function saveChatToD1(newHistory: HistoryChunk[])  {
     function PromptTools() {
         if (promptStuff) {
             return <>
-                <button type="button" className={styles.promptButton} onClick={() => setSystemShown(old => !old)}>System</button>
-                <button type="button" className={styles.promptButton} onClick={() => setUnlockTokenLimit(old => !old)}>{"tokenL: " + (unlockTokenLimit ? "On" : "Off")}</button>
+                <button type="button" className={styles.promptButton} onClick={() => setSystemShown(old => !old)}>Sys</button>
+                <button type="button" className={styles.promptButton} style={{backgroundColor: (unlockTokenLimit ? "rgba(34,34,255,0.51)" : "rgba(255,34,34,0.51)")}}
+                        onClick={() => setUnlockTokenLimit(old => !old)}>{"Inf tok " + (unlockTokenLimit ? "Y" : "N")}
+                </button>
+                <button type="button" className={styles.promptButton} style={{backgroundColor: (reasoningEnabled ? "rgba(34,34,255,0.51)" : "rgba(255,34,34,0.51)")}}
+                        onClick={() => setReasoningEnabled(old => !old)}>Thk:{reasoningEnabled ? "Y" : "N"}
+                </button>
             </>;
         }
 
