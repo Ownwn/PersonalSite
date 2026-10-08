@@ -125,6 +125,8 @@ export const models = [
     { cute_name: `sol`, api_name: "gpt-6.1-sol", provider: Provider.ofOpenai(), reasoning: { effort: "high", summary: "auto" }},
     { cute_name: `opus`, api_name: "claude-opus-5-5", provider: Provider.ofClaude("https://api.anthropic.com/v1/messages", "CLAUDE_KEY"),
         reasoning: { type: "adaptive", display: "summarized" }},
+    { cute_name: `fable`, api_name: "claude-fable-5-1", provider: Provider.ofClaude("https://api.anthropic.com/v1/messages", "CLAUDE_KEY"),
+        reasoning: { type: "adaptive", display: "summarized" }},
     { cute_name: `deeps`, api_name: "deepseek-v4-flash", provider: Provider.ofClaude("https://api.deepseek.com/anthropic/v1/messages", "DEEPSEEK_KEY"),
         thinking: { type: "enabled" }}
 
