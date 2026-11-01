@@ -377,7 +377,7 @@ export function ChatPage() {
                                 title={collapsed ? 'Expand answer' : 'Collapse answer'}
                                 onClick={() => toggleTurn(historyIndex)}>
                             <span className={styles.questionText}>
-                                <span aria-hidden="true" className={styles.turnChevron}>{collapsed ? '▸' : '▾'}</span>
+                                <span aria-hidden="true" className={styles.turnChevron}></span>
                                 <span>{question}</span>
                             </span>
                         </button>
