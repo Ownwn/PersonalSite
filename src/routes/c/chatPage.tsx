@@ -1,4 +1,4 @@
-import {FormEvent, useEffect, useState} from "react";
+import {FormEvent, useEffect, useRef, useState} from "react";
 
 import styles from "./chatPage.module.css";
 import Cookies from "js-cookie";
@@ -6,8 +6,15 @@ import Cookies from "js-cookie";
 
 import {newPromptAug2026, models} from "../../assets/constants.ts";
 
-type HistoryChunk = {question: string, response: string, hidden: boolean}
-type SerialisedHistory = {id: string, title: string, created_at: number, body: string, updated_at: number}
+import {parseHistory, readRecentChats, writeRecentChats} from './recentChats';
+import type {HistoryChunk, SerialisedHistory} from './recentChats';
+
+function formatHistoryTime(timestamp: number): string {
+    const date = new Date(timestamp);
+    const hours = date.getHours();
+    const time = `${hours % 12 || 12}:${String(date.getMinutes()).padStart(2, '0')}${hours < 12 ? 'am' : 'pm'}`;
+    return `${time} ${date.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'})}`;
+}
 
 // Turns a raw SSE `data:` payload from OpenAI / Anthropic into display text.
 // Returns null for non-text events. Errors are surfaced as visible text.
@@ -50,54 +57,21 @@ export function ChatPage() {
     const [system, setSystem] = useState(newPromptAug2026);
     const [systemShown, setSystemShown] = useState(false)
     const [unlockTokenLimit, setUnlockTokenLimit] = useState(false)
-    const [loadHistorySelector, setLoadHistorySelector] = useState(-1)
-    const [uuid, setUuid] = useState<string>(crypto.randomUUID())
+    const [uuid, setUuid] = useState<string>(() => crypto.randomUUID())
     const [autosave, setAutosave] = useState(false)
+    const [serialisedHistory, setSerialisedHistory] = useState<SerialisedHistory[]>([])
+    const [recentChats, setRecentChats] = useState<SerialisedHistory[]>([])
+    const [history, setHistory] = useState<HistoryChunk[]>([])
+    const [historyShown, setHistoryShown] = useState(false)
+    const [historyTab, setHistoryTab] = useState<'recent' | 'saved'>('recent')
+    const [historySearch, setHistorySearch] = useState('')
+    const [historyError, setHistoryError] = useState('')
+    const [storageError, setStorageError] = useState('')
+    const [saveStatus, setSaveStatus] = useState('')
+    const [isSaving, setIsSaving] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const busy = useRef(false)
 
-    const [serialisedHistory, setSerialisedHistory] = useState<SerialisedHistory[]>([
-        // {
-        //     id: "asdasdasdsadsad",
-        //     title: "Test question first one",
-        //     created_at: 1757600000000,
-        //     updated_at: 1757600000000,
-        //     body: JSON.stringify([
-        //         {
-        //             question: "Test question",
-        //             response: "Example response.\n```\npublic class Main{\n     public static void main(String args[]) {\n         System.out.println(\"foo bar\");\n     }\n}",
-        //             hidden: false
-        //         }
-        //     ])
-        // },
-        // {
-        //     id: "asdfsdgfsgdfg",
-        //     title: "Second test",
-        //     created_at: 1757700000000,
-        //     updated_at: 1757800000000,
-        //     body: JSON.stringify([
-        //         {question: "Second test", response: "Another res.\nokay.\nnext", hidden: false},
-        //         {question: "Follow up", response: "Sure thing.", hidden: false}
-        //     ])
-        // },
-        // {
-        //     id: "fhgfhfghfgh",
-        //     title: "Third test with a really long name one that spans a lot of things because its long",
-        //     created_at: 1757850000000,
-        //     updated_at: 1757850000000,
-        //     body: JSON.stringify([
-        //         {question: "Third test", response: "Third response.", hidden: false}
-        //     ])
-        // }
-    ])
-
-    const [history, setHistory] = useState<HistoryChunk[]>([
-        // {question: "Test question", response: "" +
-        //         "Example response.\n```\npublic class Main{\n     " +
-        //         "public static void main(String args[]) {\n      " +
-        //         "   System.out.println(\"foo bar\");\n     }\n}", hidden: false},
-        // {question: "Second test", response: "Another res.\nokay.\nnext", hidden: false}
-    ])
-    // @ts-ignore
-    const [historyEnabled, setHistoryEnabled] = useState(true)
     const [reasoningEnabled, setReasoningEnabled] = useState(true)
 
     const [promptStuff, setPromptStuff] = useState(false);
@@ -113,8 +87,18 @@ export function ChatPage() {
     }, []);
 
     useEffect(() => {
-        fetchSerialisedConversations()
+        void fetchSerialisedConversations()
+        refreshRecentChats()
+        const refresh = () => refreshRecentChats()
+        window.addEventListener('storage', refresh)
+        // Also expire entries while the page stays open.
+        const timer = window.setInterval(refresh, 60_000)
+        return () => {
+            window.removeEventListener('storage', refresh)
+            window.clearInterval(timer)
+        }
     }, []);
+
 
 
     return (
@@ -125,7 +109,7 @@ export function ChatPage() {
 
             <div className={styles.cent}>
                 <form onSubmit={handleSubmit}>
-                    <button className={styles.submitButton} type="submit">Submit</button>
+                    <button className={styles.submitButton} type="submit" disabled={isSubmitting || isSaving}>Submit</button>
                     <br/>
                     <textarea onChange={e => setQuestion(e.target.value)} value={question} name={"question"}
                               placeholder="Question" className={styles.question} required/>
@@ -134,7 +118,9 @@ export function ChatPage() {
                     <div className={styles.cent2}>
                         <div className={styles.checkboxGroup}>
 
-                            <ModelSelector row={0}/>
+                            <select className={styles.modelselect} value={model} name="model" onChange={e => setModel(e.target.value)}>
+                                {models.map((m, index) => <option value={index} key={index}>{m.cute_name}</option>)}
+                            </select>
 
 
 
@@ -142,25 +128,17 @@ export function ChatPage() {
                             <button type="button" className={styles.promptButton}
                                     onClick={() => setPromptStuff(!promptStuff)}>Toggle
                             </button>
-                            <button type="button" className={styles.promptButton} style={{backgroundColor: (autosave ? "rgba(34,34,255,0.51)" : "rgba(255,34,34,0.51)")}}
-                                    onClick={() => setAutosave(!autosave)}>Save
+                            <button type="button" className={styles.historyButton}
+                                    disabled={!history.length || isSubmitting || isSaving || (autosave && saveStatus === 'Saved')}
+                                    onClick={() => void saveChatToD1(history)}>
+                                {isSaving ? 'Saving…' : autosave && saveStatus === 'Saved' ? 'Kept' : 'Keep'}
                             </button>
-
-
-                            <br/>
+                            <button type="button" className={styles.historyButton} aria-expanded={historyShown}
+                                    aria-controls="chat-history" onClick={() => setHistoryShown(!historyShown)}>History</button>
                         </div>
                     </div>
-
-                    {!promptStuff ? <></> :
-                        <div className={styles.cent2}>
-                            <div className={styles.checkboxGroup}>
-                                <ModelSelector row={1}/>
-                            </div>
-
-
-                        </div>
-                    }
-
+                    <div className={styles.historyStatus} role="status">{saveStatus}</div>
+                    {storageError && <p role="alert">{storageError}</p>}
 
                     {!systemShown ? <></> : <textarea onChange={e => setSystem(e.target.value)} value={system} name={"system"} rows={4}
                                                       cols={50} placeholder="System" className={styles.system}/>}
@@ -169,151 +147,154 @@ export function ChatPage() {
                 </form>
 
 
+                {historyShown && <section id="chat-history" className={styles.historyPanel} aria-label="Chat history">
+                    <div className={styles.historyTabs}>
+                        <button type="button" aria-pressed={historyTab === 'recent'} onClick={() => setHistoryTab('recent')}>Recent</button>
+                        <button type="button" aria-pressed={historyTab === 'saved'} onClick={() => setHistoryTab('saved')}>Saved</button>
+                    </div>
+                    <input className={styles.historySearch} type="search" aria-label="Search history" placeholder="Search conversations"
+                           value={historySearch} onChange={e => setHistorySearch(e.target.value)}/>
+                    {historyError && <p role="alert">{historyError} <button type="button" onClick={() => void fetchSerialisedConversations()}>Retry</button></p>}
+                    <ul className={styles.historyList}>
+                        {(historyTab === 'recent' ? recentChats : serialisedHistory)
+                            .filter(chat => chat.title.toLowerCase().includes(historySearch.toLowerCase()))
+                            .map(chat => <li key={chat.id}>
+                                <button type="button" className={styles.historyLoad} disabled={isSubmitting || isSaving}
+                                        onClick={() => loadChatFromHistory(chat, historyTab === 'saved')}>
+                                    <span>{chat.title}</span>
+                                    <time dateTime={new Date(chat.updated_at).toISOString()}>{formatHistoryTime(chat.updated_at)}</time>
+                                </button>
+                                <button type="button" disabled={isSubmitting || isSaving} aria-label={`Delete ${chat.title}`}
+                                        onClick={() => void deleteChat(chat, historyTab === 'saved')}>Delete</button>
+                            </li>)}
+                    </ul>
+                    {!(historyTab === 'recent' ? recentChats : serialisedHistory).some(chat => chat.title.toLowerCase().includes(historySearch.toLowerCase())) &&
+                        <p>{historySearch ? 'No matching conversations.' : 'No conversations yet.'}</p>}
+                </section>}
                 <ResponseBox/>
             </div>
 
         </div>
     );
 
-    // @ts-ignore
-    function ModelSelector({ row }) {
-        if (row === 0) {
-            return <>
-                <select className={styles.modelselect} value={model} name="model" onChange={e => setModel(e.target.value)}>
-                    {models.map((m, index) => (
-                        <option value={index} key={index}>{m.cute_name}</option>
-                    ))}
-
-                </select>
-
-            </>;
+    function refreshRecentChats() {
+        try {
+            const chats = readRecentChats(localStorage)
+            writeRecentChats(localStorage, chats)
+            setRecentChats(chats)
+            setStorageError('')
+        } catch {
+            setStorageError('Recent history is unavailable. Use Keep to save this conversation.')
         }
-        return <>
-            <LoadFromCookieSelectorComponent/>
-            <button type="button" className={styles.promptButton}
-                    onClick={loadChatFromHistory}>Load
-            </button>
-            <button type="button" className={styles.promptButton} style={{backgroundColor: "red"}}
-                    onClick={archiveSavedChat}>Del
-            </button>
-        </>
+    }
 
+    function rememberRecent(id: string, chunks: HistoryChunk[]) {
+        try {
+            const chats = readRecentChats(localStorage)
+            const existing = chats.find(chat => chat.id === id)
+            const now = Date.now()
+            const updated = [{id, title: chunks[0].question.substring(0, 80), body: JSON.stringify(chunks),
+                created_at: existing?.created_at ?? now, updated_at: now}, ...chats.filter(chat => chat.id !== id)]
+            writeRecentChats(localStorage, updated)
+            setRecentChats(updated)
+            setStorageError('')
+        } catch {
+            setStorageError('Couldn’t retain recent history. Use Keep to save this conversation.')
+        }
+    }
 
+    function removeRecent(id: string) {
+        try {
+            const chats = readRecentChats(localStorage).filter(chat => chat.id !== id)
+            writeRecentChats(localStorage, chats)
+            setRecentChats(chats)
+        } catch {
+            setStorageError('Couldn’t update recent history in this browser.')
+        }
     }
 
     async function fetchSerialisedConversations() {
         try {
-            const historySaved = await fetch("savedChats")
-            if (!historySaved.ok) {
-                throw new Error("cant find history " + historySaved.statusText)
-            }
-            const json: SerialisedHistory[] = await historySaved.json()
-            const mappedChunks = json
-                .sort((h1, h2) => h2.updated_at - h1.updated_at)
-            setSerialisedHistory(mappedChunks)
-        } catch (e: any) {
-            setBotResponse(old => "error!!: " + e.message + " " + old)
-            console.error(e)
+            const response = await fetch('savedChats')
+            if (!response.ok) throw new Error('Failed to load saved history')
+            const chats: SerialisedHistory[] = await response.json()
+            setSerialisedHistory(chats.filter(chat => !chat.title.startsWith('...ARCHIVED...'))
+                .sort((a, b) => b.updated_at - a.updated_at))
+            setHistoryError('')
+        } catch {
+            setHistoryError('Couldn’t load saved history.')
         }
     }
 
-    function toggleHistoryButton(index: number)  {
-        return <button type={"button"} className={styles.hideButton} style={{backgroundColor: (history[index].hidden ? "rgba(255,34,34,0.51)" : "rgba(34,34,255,0.51)")}} onClick={() => {
-
-            setHistory(prev => prev.map(
-                (chunk, chunkIndex) => (
-                    {question: chunk.question, response: chunk.response, hidden: (index===chunkIndex ? !chunk.hidden : chunk.hidden)}
-                )))
-        }}>
-            <b>{history[index].hidden ? "❌" : "✓"}</b>
-
-        </button>
+    function toggleHistoryButton(index: number) {
+        return <button type="button" className={styles.hideButton} disabled={isSubmitting || isSaving}
+                       aria-label={history[index].hidden ? 'Include turn in context' : 'Exclude turn from context'}
+                       style={{backgroundColor: history[index].hidden ? 'rgba(255,34,34,0.51)' : 'rgba(34,34,255,0.51)'}}
+                       onClick={() => {
+                           const updated = history.map((chunk, i) => i === index ? {...chunk, hidden: !chunk.hidden} : chunk)
+                           setHistory(updated)
+                           rememberRecent(uuid, updated)
+                           if (autosave) void saveChatToD1(updated)
+                       }}><b>{history[index].hidden ? '❌' : '✓'}</b></button>
     }
 
-    function LoadFromCookieSelectorComponent() {
-        return <select className={styles.savedchatselect} value={loadHistorySelector} name="loadselector" onChange={e => setLoadHistorySelector(Number(e.target.value))}>
-            <option value={-1} disabled>
-                Select chat
-            </option>
-            {serialisedHistory.map((hist, index) => (
-                <option value={index} key={hist.id}>{hist.title.substring(0, 100)}</option>
-            ))}
-
-        </select>
-    }
-
-    function loadChatFromHistory() {
-        console.log("old history: ")
-        history.forEach((val, num) => console.log(String(num) + ": " + val.question + " " + val.response))
-
-        const selected = serialisedHistory[loadHistorySelector]
-
-        if (!selected) {
-            setBotResponse("cant find value from the key " + loadHistorySelector + ":((((.")
-            console.log("cant find value from the key " + loadHistorySelector + ":((((.")
-            return
-        }
-
+    function loadChatFromHistory(chat: SerialisedHistory, saved: boolean) {
+        if (busy.current || isSaving) return
         try {
-
-        setHistory(JSON.parse(selected.body))
-        setUuid(selected.id)
-        } catch (e) {
-            // @ts-ignore
-            setBotResponse("error loading history " + e.message + "body is:" + selected.body)
+            setHistory(parseHistory(chat.body))
+            setUuid(chat.id)
+            setAutosave(saved)
+            setSaveStatus(saved ? 'Saved' : '')
+            setBotResponse('')
+            setPendingQuestion('')
+            setQuestion('')
+            setHistoryShown(false)
+        } catch {
+            setHistoryError('Couldn’t open this conversation.')
         }
-
-
     }
 
-    async function archiveSavedChat() {
-        const selected = serialisedHistory[loadHistorySelector]
-
-        if (!selected) {
-            setBotResponse("cant DELETE find value from the key " + loadHistorySelector + ":((((.")
-            console.log("cant DELETE find value from the key " + loadHistorySelector + ":((((.")
-            return
+    async function deleteChat(chat: SerialisedHistory, saved: boolean) {
+        if (saved) {
+            setIsSaving(true)
+            try {
+                const response = await fetch('savedChats', {method: 'DELETE',
+                    body: JSON.stringify({id: chat.id})})
+                if (!response.ok) throw new Error('Delete failed')
+                setSerialisedHistory(old => old.filter(item => item.id !== chat.id))
+                if (chat.id === uuid) {
+                    setAutosave(false)
+                    setSaveStatus('')
+                }
+            } catch {
+                setHistoryError('Couldn’t delete this conversation.')
+                return
+            } finally {
+                setIsSaving(false)
+            }
         }
-
-        const res = await fetch("savedChats", {
-            method: "DELETE",
-            body: JSON.stringify({
-                id: uuid
-            })
-        })
-
-        if (!res.ok) {
-            console.error("bad res for deleting chat!")
-            setBotResponse(old => "bad res for delete chat " + res.statusText + old)
-        }
-        fetchSerialisedConversations()
-
-
+        removeRecent(chat.id)
     }
 
-async function saveChatToD1(newHistory: HistoryChunk[])  {
-        if (newHistory.length == 0) {
-            return
+    async function saveChatToD1(newHistory: HistoryChunk[]) {
+        if (!newHistory.length) return
+        setIsSaving(true)
+        setSaveStatus('Saving…')
+        try {
+            const response = await fetch('savedChats', {method: 'POST', body: JSON.stringify({
+                title: newHistory[0].question.substring(0, 80), body: newHistory, id: uuid
+            })})
+            if (!response.ok) throw new Error('Save failed')
+            setAutosave(true)
+            setSaveStatus('Saved')
+            removeRecent(uuid)
+            await fetchSerialisedConversations()
+        } catch {
+            setSaveStatus('Couldn’t save. Try Keep again.')
+            rememberRecent(uuid, newHistory)
+        } finally {
+            setIsSaving(false)
         }
-
-
-        const title = newHistory[0].question.substring(0, 50)
-
-        const res = await fetch("savedChats", {
-            method: "POST",
-            body: JSON.stringify({
-                title: title,
-                body: newHistory,
-                id: uuid
-            })
-        })
-
-        if (!res.ok) {
-            console.error("bad res for saving chat!")
-            setBotResponse(old => "bad res for save chat " + res.statusText + old)
-        }
-        fetchSerialisedConversations()
-
     }
 
     // trueHistory is if the user can delete it
@@ -460,17 +441,23 @@ async function saveChatToD1(newHistory: HistoryChunk[])  {
 
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
+        if (busy.current || isSaving) return
+        busy.current = true
+        setIsSubmitting(true)
         setBotResponse("Loading...");
         setPendingQuestion(question)
-        await submitPrompt();
+        try {
+            await submitPrompt();
+        } catch {
+            setBotResponse('The response was interrupted. Any received text has been retained.')
+        } finally {
+            busy.current = false
+            setIsSubmitting(false)
+        }
     }
 
 
     async function submitPrompt() {
-        if (!historyEnabled) {
-            setHistory([])
-        }
-
         const request = {
             question: question,
             model_id: model,
@@ -480,6 +467,8 @@ async function saveChatToD1(newHistory: HistoryChunk[])  {
             options: {extraTokens: unlockTokenLimit}
         };
 
+        // Retain the submitted question even if the page is refreshed during a response.
+        rememberRecent(uuid, [...history, {question, response: '', hidden: false}])
         const response = await fetch("chatEndpoint", {
             method: "POST",
             headers: {
@@ -498,6 +487,12 @@ async function saveChatToD1(newHistory: HistoryChunk[])  {
         const decoder = new TextDecoder();
         let buffer = "";
         let res = "";
+        let lastRetained = 0;
+        function retainPartialResponse() {
+            if (Date.now() - lastRetained < 1000) return
+            rememberRecent(uuid, [...history, {question: oldQuestion, response: res, hidden: false}])
+            lastRetained = Date.now()
+        }
 
         setBotResponse("");
 
@@ -525,6 +520,7 @@ async function saveChatToD1(newHistory: HistoryChunk[])  {
                         if (text != null) {
                             setBotResponse(prev => prev + text);
                             res += text;
+                            retainPartialResponse();
                         }
                     }
                 }
@@ -542,15 +538,11 @@ async function saveChatToD1(newHistory: HistoryChunk[])  {
             }
         } finally {
             reader.releaseLock();
-            console.log("User: ", oldQuestion);
-            console.log("\n")
-            console.log("Res: ", res);
-            console.log("\n\n\n");
-            if (autosave) {
-                saveChatToD1([...history, {question: oldQuestion, response: res, hidden: false}])
-            }
-            setHistory(old => [...old, {question: oldQuestion, response: res, hidden: false}])
-            setBotResponse("")
+            const newHistory = [...history, {question: oldQuestion, response: res, hidden: false}]
+            rememberRecent(uuid, newHistory)
+            setHistory(newHistory)
+            setBotResponse('')
+            if (autosave) await saveChatToD1(newHistory)
 
         }
     }

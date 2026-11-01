@@ -61,11 +61,6 @@
     height: 30px;
 }
 
-.savedchatselect {
-    width: 200px;
-    height: 30px;
-}
-
 .codeResponse {
     color: black;
     font-family: "Cascadia Code";
@@ -175,4 +170,131 @@ select:hover {
     color: white;
     max-width: 700px;
     margin: 2px;
+}
+.historyButton {
+    width: auto;
+    height: auto;
+    min-height: 40px;
+    padding: 0 14px;
+    margin-left: 8px;
+    border: 0;
+    border-radius: 5px;
+    background: rgba(86, 86, 86, 0.3);
+    color: #171717;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.historyStatus {
+    min-height: 1.5em;
+    margin: 6px;
+}
+
+.historyPanel {
+    width: min(700px, 90%);
+    margin: 16px auto;
+    padding: 16px;
+    box-sizing: border-box;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.16);
+    color: #171717;
+    text-align: left;
+}
+
+.historyTabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.historyPanel button {
+    box-sizing: border-box;
+    width: auto;
+    height: auto;
+    min-height: 36px;
+    font: inherit;
+    line-height: 1.4;
+    white-space: normal;
+    padding: 9px 12px;
+    border: 0;
+    border-radius: 5px;
+    cursor: pointer;
+    color: inherit;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.historyTabs button[aria-pressed="true"] {
+    background: rgba(0, 0, 0, 0.65);
+    color: #fff;
+}
+
+.historySearch {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.22);
+    color: inherit;
+    font: inherit;
+}
+
+.historySearch::placeholder {
+    color: #383838;
+}
+
+.historyList {
+    display: block;
+    margin: 9px 0 0;
+    list-style: none;
+    padding: 0;
+    max-height: 360px;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+}
+
+.historyList li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.18);
+    padding: 8px 0 16px;
+}
+
+.historyList .historyLoad {
+    min-width: 0;
+    max-width: 100%;
+    text-align: left;
+    background: transparent;
+    overflow-wrap: anywhere;
+    font-size: 15px;
+    line-height: 1.45;
+}
+
+.historyPanel button:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.22);
+}
+
+.historyLoad span {
+    display: block;
+}
+
+.historyLoad time {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    color: #383838;
+}
+
+.chatBackground button:disabled {
+    cursor: default;
+    opacity: 0.55;
+}
+
+.checkboxGroup {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
 }

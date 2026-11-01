@@ -3,8 +3,8 @@ import {genResponse} from "./404";
 export async function onRequestGet(context: EventContext<any, any, any>) {
     let res;
     try {
-        res = await context.env.CHATS.prepare("select * from conversations").run()
-        if (!res.success) console.error("res is: ", res)
+        res = await context.env.CHATS.prepare("select * from conversations where title not like '...ARCHIVED...%' order by updated_at desc").run()
+        if (!res.success) return genResponse("error fetching conversations", 500)
     } catch (error) {
         console.error(error)
         return genResponse("error fetching from db", 500)
@@ -38,6 +38,8 @@ export async function onRequestPost(context: EventContext<any, any, any>) {
             .bind(id, title, updatedTime, JSON.stringify(body), updatedTime)
             .run()
 
+        if (!res.success) return genResponse("could not save conversation", 500)
+
         return new Response("posted with success: " + res.success, {
             headers: {"Content-Type": "text/plain"},
             status: 200
@@ -68,6 +70,8 @@ export async function onRequestDelete(context: EventContext<any, any, any>) {
             "update conversations set title = '...ARCHIVED...' || title where id = ? and title not like '...ARCHIVED...%'")
             .bind(uuid)
             .run()
+
+        if (!res.success) return genResponse("could not delete conversation", 500)
 
         return new Response("deleted with success: " + res.success, {
             headers: {"Content-Type": "text/plain"},
