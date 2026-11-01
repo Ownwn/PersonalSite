@@ -97,7 +97,54 @@
 .together {
     display: flex;
     flex-direction: row;
+    align-items: flex-start;
+    gap: 6px;
 }
+
+.collapseToggle {
+    display: flex;
+    flex: 1;
+    align-items: flex-start;
+    min-width: 0;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+/* Matches the default margin of the <p> the question used to render as. */
+.questionText {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    min-width: 0;
+    margin: 1em 0;
+}
+
+.collapseToggle:hover {
+    background: transparent;
+    color: #a30036;
+}
+
+.collapseToggle:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+}
+
+.turnChevron {
+    flex: none;
+    font-size: 0.8em;
+}
+
+.responseBody {
+    display: block;
+}
+
 
 .question {
     min-width: 80%;

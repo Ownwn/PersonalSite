@@ -65,6 +65,7 @@ export function ChatPage() {
     const [serialisedHistory, setSerialisedHistory] = useState<SerialisedHistory[]>([])
     const [recentChats, setRecentChats] = useState<SerialisedHistory[]>([])
     const [history, setHistory] = useState<HistoryChunk[]>([])
+    const [collapsedTurns, setCollapsedTurns] = useState<Set<number>>(() => new Set())
     const [historyShown, setHistoryShown] = useState(false)
     const [historyTab, setHistoryTab] = useState<'recent' | 'saved'>('recent')
     const [historySearch, setHistorySearch] = useState('')
@@ -265,6 +266,18 @@ export function ChatPage() {
         }
     }
 
+    function toggleTurn(index: number) {
+        setCollapsedTurns(current => {
+            const next = new Set(current)
+            if (next.has(index)) {
+                next.delete(index)
+            } else {
+                next.add(index)
+            }
+            return next
+        })
+    }
+
     function toggleHistoryButton(index: number) {
         return <button type="button" className={styles.hideButton} disabled={isSubmitting || isSaving}
                        aria-label={history[index].hidden ? 'Include turn in context' : 'Exclude turn from context'}
@@ -281,6 +294,7 @@ export function ChatPage() {
         if (busy.current || isSaving) return
         try {
             setHistory(parseHistory(chat.body))
+            setCollapsedTurns(new Set())
             setUuid(chat.id)
             setChatTitle(chat.title)
             setRenamingId(null)
@@ -341,26 +355,41 @@ export function ChatPage() {
     // trueHistory is if the user can delete it
     function FormattedResponse(historyIndex: number, historyPiece: HistoryChunk, trueHistory: boolean) {
         const properResponse = [];
+        const answerLines = [];
         const boldRegex = RegExp("\\*\\*([^*]+)\\*\\*");
+
+        const collapsed = trueHistory && collapsedTurns.has(historyIndex);
+        const question = historyPiece.hidden
+            ? <s>{historyPiece.question}</s>
+            : <>{historyPiece.question}</>;
 
         let key = 0;
         let isCodeLine = false;
 
         properResponse.push(
-            <div className={styles.questionHeader}>
-                <span>
-                    <span className={styles.together}>
-                        {!trueHistory ? <></> : toggleHistoryButton(historyIndex)}
-                        {historyPiece.hidden ? <s>
-                            {getHeaderLine(historyPiece.question, 0, 9999)}
-                        </s> : <>
-                            {getHeaderLine(historyPiece.question, 0, 9999)}</>}
-                    </span>
+            <div className={styles.questionHeader} key="header">
+                <span className={styles.together}>
+                    {!trueHistory ? <></> : toggleHistoryButton(historyIndex)}
+                    {trueHistory ? (
+                        <button type="button" className={styles.collapseToggle}
+                                aria-expanded={!collapsed}
+                                aria-controls={`chat-turn-${historyIndex}`}
+                                title={collapsed ? 'Expand answer' : 'Collapse answer'}
+                                onClick={() => toggleTurn(historyIndex)}>
+                            <span className={styles.questionText}>
+                                <span aria-hidden="true" className={styles.turnChevron}>{collapsed ? '▸' : '▾'}</span>
+                                <span>{question}</span>
+                            </span>
+                        </button>
+                    ) : <span className={styles.questionText}><span>{question}</span></span>}
                 </span>
-
-
             </div>
         )
+
+        // Collapsed turns only render their question row, keeping long chats easy to scan.
+        if (collapsed) {
+            return properResponse;
+        }
 
         for (let line of historyPiece.response.split("\n")) {
 
@@ -372,7 +401,7 @@ export function ChatPage() {
             }
 
             if (isCodeLine) {
-                properResponse.push(<><span className={styles.codeResponse}>{line}</span><br/></>);
+                answerLines.push(<span className={styles.codeResponse} key={key}>{line}<br/></span>);
 
                 key++;
                 continue;
@@ -395,11 +424,17 @@ export function ChatPage() {
             }
 
 
-            properResponse.push(<div>{!historyPiece.hidden ? line : <s>{line}</s>}</div>);
+            answerLines.push(<div key={key}>{!historyPiece.hidden ? line : <s>{line}</s>}</div>);
 
 
             key++;
         }
+
+        properResponse.push(
+            <div id={trueHistory ? `chat-turn-${historyIndex}` : undefined} className={styles.responseBody} key="body">
+                {answerLines}
+            </div>
+        )
         return properResponse;
     }
 
