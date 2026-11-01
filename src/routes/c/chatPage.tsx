@@ -58,6 +58,9 @@ export function ChatPage() {
     const [systemShown, setSystemShown] = useState(false)
     const [unlockTokenLimit, setUnlockTokenLimit] = useState(false)
     const [uuid, setUuid] = useState<string>(() => crypto.randomUUID())
+    const [chatTitle, setChatTitle] = useState('')
+    const [renamingId, setRenamingId] = useState<string | null>(null)
+    const [titleDraft, setTitleDraft] = useState('')
     const [autosave, setAutosave] = useState(false)
     const [serialisedHistory, setSerialisedHistory] = useState<SerialisedHistory[]>([])
     const [recentChats, setRecentChats] = useState<SerialisedHistory[]>([])
@@ -164,6 +167,13 @@ export function ChatPage() {
                                     <span>{chat.title}</span>
                                     <time dateTime={new Date(chat.updated_at).toISOString()}>{formatHistoryTime(chat.updated_at)}</time>
                                 </button>
+                                {renamingId === chat.id ? <form onSubmit={e => {e.preventDefault(); void renameChat(chat, historyTab === 'saved')}}>
+                                    <input aria-label="Conversation title" autoFocus maxLength={120} value={titleDraft}
+                                           disabled={isSaving} onChange={e => setTitleDraft(e.target.value)}/>
+                                    <button type="submit" disabled={isSaving || !titleDraft.trim()}>Save</button>
+                                    <button type="button" disabled={isSaving} onClick={() => setRenamingId(null)}>Cancel</button>
+                                </form> : <button type="button" disabled={isSubmitting || isSaving}
+                                    onClick={() => {setRenamingId(chat.id); setTitleDraft(chat.title)}}>Rename</button>}
                                 <button type="button" disabled={isSubmitting || isSaving} aria-label={`Delete ${chat.title}`}
                                         onClick={() => void deleteChat(chat, historyTab === 'saved')}>Delete</button>
                             </li>)}
@@ -176,6 +186,35 @@ export function ChatPage() {
 
         </div>
     );
+
+    function defaultTitle(chunks: HistoryChunk[]) {
+        return chunks[0].question.replace(/\s+/g, ' ').trim().substring(0, 80) || 'Untitled conversation'
+    }
+
+    async function renameChat(chat: SerialisedHistory, saved: boolean) {
+        const title = titleDraft.trim()
+        if (!title || title.length > 120 || isSaving || busy.current) return
+        setIsSaving(true)
+        try {
+            if (saved) {
+                const response = await fetch('savedChats', {method: 'PATCH',
+                    headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id: chat.id, title})})
+                if (!response.ok) throw new Error('Rename failed')
+                setSerialisedHistory(chats => chats.map(item => item.id === chat.id ? {...item, title} : item))
+            } else {
+                const chats = readRecentChats(localStorage).map(item => item.id === chat.id ? {...item, title} : item)
+                writeRecentChats(localStorage, chats)
+                setRecentChats(chats)
+            }
+            if (chat.id === uuid) setChatTitle(title)
+            setRenamingId(null)
+            setHistoryError('')
+        } catch {
+            setHistoryError('Couldn’t rename this conversation. Try again.')
+        } finally {
+            setIsSaving(false)
+        }
+    }
 
     function refreshRecentChats() {
         try {
@@ -193,7 +232,7 @@ export function ChatPage() {
             const chats = readRecentChats(localStorage)
             const existing = chats.find(chat => chat.id === id)
             const now = Date.now()
-            const updated = [{id, title: chunks[0].question.substring(0, 80), body: JSON.stringify(chunks),
+            const updated = [{id, title: chatTitle || existing?.title || defaultTitle(chunks), body: JSON.stringify(chunks),
                 created_at: existing?.created_at ?? now, updated_at: now}, ...chats.filter(chat => chat.id !== id)]
             writeRecentChats(localStorage, updated)
             setRecentChats(updated)
@@ -243,6 +282,8 @@ export function ChatPage() {
         try {
             setHistory(parseHistory(chat.body))
             setUuid(chat.id)
+            setChatTitle(chat.title)
+            setRenamingId(null)
             setAutosave(saved)
             setSaveStatus(saved ? 'Saved' : '')
             setBotResponse('')
@@ -282,7 +323,7 @@ export function ChatPage() {
         setSaveStatus('Saving…')
         try {
             const response = await fetch('savedChats', {method: 'POST', body: JSON.stringify({
-                title: newHistory[0].question.substring(0, 80), body: newHistory, id: uuid
+                title: chatTitle || defaultTitle(newHistory), body: newHistory, id: uuid
             })})
             if (!response.ok) throw new Error('Save failed')
             setAutosave(true)

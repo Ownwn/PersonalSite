@@ -84,3 +84,27 @@ export async function onRequestDelete(context: EventContext<any, any, any>) {
         return genResponse("unknown error deleting " + e.message, 500)
     }
 }
+
+export async function onRequestPatch(context: EventContext<any, any, any>) {
+    let data;
+    try {
+        data = await context.request.json();
+    } catch {
+        return genResponse("Invalid JSON", 400);
+    }
+    if (!data || typeof data.id !== 'string' || !data.id.trim() ||
+        typeof data.title !== 'string' || !data.title.trim() || data.title.trim().length > 120) {
+        return genResponse("Invalid id or title", 400);
+    }
+    try {
+        const result = await context.env.CHATS.prepare(
+            "update conversations set title = ? where id = ? and title not like '...ARCHIVED...%'")
+            .bind(data.title.trim(), data.id).run();
+        if (!result.success) return genResponse("Could not rename conversation", 500);
+        if (!result.meta.changes) return genResponse("Conversation not found", 404);
+        return new Response(null, {status: 204});
+    } catch (error) {
+        console.error(error);
+        return genResponse("Could not rename conversation", 500);
+    }
+}
