@@ -326,12 +326,13 @@ select:hover {
 
 .historyLoad span {
     display: block;
+    font-size: 20px;
 }
 
 .historyLoad time {
     display: block;
     margin-top: 4px;
-    font-size: 12px;
+    font-size: 15px;
     color: #383838;
 }
 
