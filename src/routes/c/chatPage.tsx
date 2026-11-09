@@ -8,13 +8,7 @@ import {newPromptAug2026, models} from "../../assets/constants.ts";
 
 import {parseHistory, readRecentChats, writeRecentChats} from './recentChats';
 import type {HistoryChunk, SerialisedHistory} from './recentChats';
-
-function formatHistoryTime(timestamp: number): string {
-    const date = new Date(timestamp);
-    const hours = date.getHours();
-    const time = `${hours % 12 || 12}:${String(date.getMinutes()).padStart(2, '0')}${hours < 12 ? 'am' : 'pm'}`;
-    return `${time} ${date.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'})}`;
-}
+import {readMarkdownTable, getHeaderLine, formatHistoryTime, getBoldLine} from './formatter.tsx';
 
 // Turns a raw SSE `data:` payload from OpenAI / Anthropic into display text.
 // Returns null for non-text events. Errors are surfaced as visible text.
@@ -391,7 +385,9 @@ export function ChatPage() {
             return properResponse;
         }
 
-        for (let line of historyPiece.response.split("\n")) {
+        const lines = historyPiece.response.split(/\r?\n/);
+        for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+            let line = lines[lineIndex];
 
             if (line.startsWith("```")) {
                 isCodeLine = !isCodeLine;
@@ -404,6 +400,35 @@ export function ChatPage() {
                 answerLines.push(<span className={styles.codeResponse} key={key}>{line}<br/></span>);
 
                 key++;
+                continue;
+            }
+
+            const table = readMarkdownTable(lines, lineIndex);
+            if (table) {
+                const formatCell = (cell: string) => {
+                    const content = getBoldLine(cell);
+                    return historyPiece.hidden ? <s>{content}</s> : content;
+                };
+                answerLines.push(
+                    <div className={styles.tableScroll} key={key++} role="region"
+                         aria-label="Response table" tabIndex={0}>
+                        <table className={styles.responseTable}>
+                            <thead><tr>{table.headers.map((cell, index) =>
+                                <th key={index} scope="col" style={{textAlign: table.alignments[index]}}>
+                                    {formatCell(cell)}
+                                </th>
+                            )}</tr></thead>
+                            <tbody>{table.rows.map((row, rowIndex) =>
+                                <tr key={rowIndex}>{row.map((cell, index) =>
+                                    <td key={index} style={{textAlign: table.alignments[index]}}>
+                                        {formatCell(cell)}
+                                    </td>
+                                )}</tr>
+                            )}</tbody>
+                        </table>
+                    </div>
+                );
+                lineIndex = table.nextIndex - 1;
                 continue;
             }
 
@@ -436,40 +461,6 @@ export function ChatPage() {
             </div>
         )
         return properResponse;
-    }
-
-    function getHeaderLine(line: string, headerCount: number, key: number) {
-        let newLine;
-        switch (headerCount) {
-            case 1:
-                newLine = <h2 key={key}>{line}</h2>;
-                break;
-            case 2:
-                newLine = <h3 key={key}>{line}</h3>;
-                break;
-            case 3:
-                newLine = <h4 key={key}>{line}</h4>;
-                break;
-            default:
-                newLine = <p key={key}>{line}</p>;
-                break;
-        }
-        return newLine;
-    }
-
-    function getBoldLine(line: string) {
-        const lineChunks = line.split("**");
-
-        const formattedChunks = [];
-        for (let i = 0; i < lineChunks.length; i++) {
-            if (i % 2 == 0) {
-                formattedChunks.push(<span key={i}>{lineChunks[i]}</span>);
-            } else {
-                formattedChunks.push(<strong key={i}>{lineChunks[i]}</strong>);
-            }
-        }
-
-        return <>{formattedChunks}</>;
     }
 
 
@@ -619,6 +610,7 @@ export function ChatPage() {
             setHistory(newHistory)
             setBotResponse('')
             if (autosave) await saveChatToD1(newHistory)
+            console.log(res)
 
         }
     }
