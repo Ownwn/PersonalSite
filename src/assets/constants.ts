@@ -121,15 +121,16 @@ export function removeReasoning(response: string): string {
 }
 
 export const models = [
-    { cute_name: `lunar`, api_name: "gpt-6-luna", provider: Provider.ofOpenai(), reasoning: { effort: "low"}},
-    { cute_name: `sol`, api_name: "gpt-6.1-sol", provider: Provider.ofOpenai(), reasoning: { effort: "high", summary: "auto" }},
-    { cute_name: `opus`, api_name: "claude-opus-5-5", provider: Provider.ofClaude("https://api.anthropic.com/v1/messages", "CLAUDE_KEY"),
+    { cute_name: `luna$0`, api_name: "gpt-6-luna", provider: Provider.ofOpenai(), reasoning: { effort: "low"}},
+    { cute_name: `sol$2`, api_name: "gpt-6.1-sol", provider: Provider.ofOpenai(), reasoning: { effort: "high", summary: "auto" }},
+    { cute_name: `astra$10`, api_name: "gpt-6-astra", provider: Provider.ofOpenai(), reasoning: { effort: "high", summary: "auto" }},
+
+    { cute_name: `opus$4`, api_name: "claude-opus-5-5", provider: Provider.ofClaude("https://api.anthropic.com/v1/messages", "CLAUDE_KEY"),
         reasoning: { type: "adaptive", display: "summarized" }},
-    { cute_name: `$fable`, api_name: "claude-fable-5-1", provider: Provider.ofClaude("https://api.anthropic.com/v1/messages", "CLAUDE_KEY"),
+    { cute_name: `fable$8`, api_name: "claude-fable-5-2", provider: Provider.ofClaude("https://api.anthropic.com/v1/messages", "CLAUDE_KEY"),
         reasoning: { type: "adaptive", display: "summarized" }},
-    { cute_name: `deeps`, api_name: "deepseek-flash", provider: Provider.ofClaude("https://api.deepseek.com/anthropic/v1/messages", "DEEPSEEK_KEY"),
+    { cute_name: `deeps$0`, api_name: "deepseek-flash", provider: Provider.ofClaude("https://api.deepseek.com/anthropic/v1/messages", "DEEPSEEK_KEY"),
         thinking: { type: "enabled" }},
-    { cute_name: `$astra`, api_name: "gpt-6-astra", provider: Provider.ofOpenai(), reasoning: { effort: "high", summary: "auto" }},
 
 ];
 
